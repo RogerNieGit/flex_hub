@@ -277,6 +277,82 @@ dotnet run
 dotnet publish -c Release
 ```
 
+### Git Workflow & Branch Strategy
+
+This project uses a **feature branch workflow** with pull requests:
+
+#### Branch Structure
+- **`main`** - Production-ready code, stable releases
+- **`FB-V1.0.0`** - Active development branch for version 1.0.0
+- **Feature branches** - Individual feature development (if needed)
+
+#### Development Workflow
+
+1. **Make Changes on Development Branch**
+   ```bash
+   # Ensure you're on the development branch
+   git checkout FB-V1.0.0
+   
+   # Make your changes to files
+   # Test your changes locally
+   
+   # Stage and commit changes
+   git add .
+   git commit -m "Description of changes"
+   ```
+
+2. **Push to Remote**
+   ```bash
+   # Push development branch to GitHub
+   git push origin FB-V1.0.0
+   ```
+
+3. **Create Pull Request**
+   - Go to: https://github.com/RogerNieGit/flex_hub
+   - Click "Pull requests" → "New pull request"
+   - Set **base**: `main` ← **compare**: `FB-V1.0.0`
+   - Add description of changes
+   - Click "Create pull request"
+   - Review and merge when ready
+
+4. **After Merge** (optional)
+   ```bash
+   # Switch to main and pull latest
+   git checkout main
+   git pull origin main
+   
+   # Update development branch with merged changes
+   git checkout FB-V1.0.0
+   git merge main
+   ```
+
+#### Quick Commands Reference
+```bash
+# Check current branch
+git branch
+
+# Check status
+git status
+
+# View commit history
+git log --oneline -10
+
+# Push current branch
+git push origin $(git branch --show-current)
+
+# Create and push new feature branch
+git checkout -b feature/my-feature
+git push -u origin feature/my-feature
+```
+
+#### Best Practices
+- ✅ Always work on `FB-V1.0.0` branch for development
+- ✅ Keep `main` branch stable and production-ready
+- ✅ Use descriptive commit messages
+- ✅ Test changes before pushing
+- ✅ Create PRs for code review before merging to main
+- ✅ Pull latest changes before starting new work
+
 ### NuGet Packages
 - `Microsoft.Web.WebView2` (v1.0.3719.77) - Web browser component
 - `System.Data.SQLite.Core` (v1.0.119.0) - SQLite database support
