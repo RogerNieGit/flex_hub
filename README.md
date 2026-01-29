@@ -9,6 +9,8 @@ A modern Windows desktop application built with **WPF (Windows Presentation Foun
 - **Action Logging**: Tracks and displays recent user actions with timestamps
 - **Responsive Layout**: Organized with Grid and StackPanel layouts
 - **Custom Styles**: Modern button and textbox styles with hover effects
+- **SQLite Database Support**: Access and query external SQLite databases
+- **Database Manager**: Full-featured database viewer and query tool
 
 ## 🛠️ Technology Stack
 
@@ -50,11 +52,17 @@ dotnet run --project ModernDesktopApp.csproj
 
 ```
 flex_book/
-├── MainWindow.xaml          # UI layout and styling
-├── MainWindow.xaml.cs       # Code-behind with event handlers
+├── MainWindow.xaml          # Main UI layout and styling
+├── MainWindow.xaml.cs       # Main window code-behind
+├── DatabaseWindow.xaml      # Database manager UI
+├── DatabaseWindow.xaml.cs   # Database manager code-behind
+├── DatabaseHelper.cs        # SQLite database helper class
 ├── App.xaml                 # Application resources
 ├── App.xaml.cs              # Application startup code
 ├── ModernDesktopApp.csproj  # Project configuration
+├── flex_book.bat            # Launcher batch file
+├── reference/
+│   └── git_note.md          # Git commands reference
 └── README.md                # This file
 ```
 
@@ -103,13 +111,42 @@ You can modify colors, fonts, and layouts directly in the XAML file.
 - List management (keeping last 10 actions)
 - Color-coded feedback (blue for success, red for errors)
 
+## 🗄️ Database Manager
+
+The application includes a powerful SQLite database manager that can access external databases.
+
+### Features:
+- **Database Connection**: Connects to `C:\Users\T917991\AppData\Roaming\com.flexdesk.app\flex_desk_db`
+- **Table Browser**: View all tables in the database
+- **Schema Viewer**: See column definitions for each table
+- **SQL Query Editor**: Execute custom SQL queries
+- **Data Grid**: View query results in a sortable, resizable grid
+- **Performance Metrics**: Shows query execution time and row count
+
+### Usage:
+1. Click the "Open Database" button on the main window
+2. Select a table from the left panel to view its schema
+3. Use the pre-filled query or write your own SQL
+4. Click "Execute Query" to run the query
+5. Results appear in the data grid below
+
+### Capabilities:
+- ✅ Read data from any table
+- ✅ Execute complex SELECT queries with WHERE, JOIN, etc.
+- ✅ View database statistics (size, table count, row counts)
+- ✅ Export-ready data grid (can be copied to Excel)
+- ✅ Shared database access (other applications can use the same database)
+
+**Note:** The database manager has read-only capabilities by default for safety. The database can be accessed simultaneously by multiple applications.
+
 ## 🎯 Next Steps
 
 To extend this application, you could add:
 - Menu bar with File/Edit/Help menus
 - Toolbar with icons
-- Multiple pages/windows
-- Database connectivity
+- Database write operations (INSERT, UPDATE, DELETE)
+- Export data to CSV/Excel
+- Database backup and restore
 - Settings dialog
 - File I/O operations
 - Charts and graphs

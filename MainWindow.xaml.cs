@@ -8,6 +8,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Color = System.Windows.Media.Color;
 
 namespace ModernDesktopApp;
 
@@ -62,6 +63,22 @@ public partial class MainWindow : Window
         while (ActionsList.Items.Count > 10)
         {
             ActionsList.Items.RemoveAt(ActionsList.Items.Count - 1);
+        }
+    }
+
+    private void OpenDatabaseButton_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var dbWindow = new DatabaseWindow();
+            dbWindow.Show();
+            AddAction("Opened FlexDesk Database Manager");
+        }
+        catch (Exception ex)
+        {
+            OutputText.Text = $"Error opening database: {ex.Message}";
+            OutputText.Foreground = new SolidColorBrush(Color.FromRgb(220, 53, 69));
+            AddAction($"Database error: {ex.Message}");
         }
     }
 }

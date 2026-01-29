@@ -115,7 +115,12 @@
                     <Button Content="Clear" 
                            Style="{StaticResource ModernButton}"
                            Click="ClearButton_Click"
-                           Background="#6C757D"/>
+                           Background="#6C757D"
+                           Margin="0,0,10,0"/>
+                    <Button Content="Open Database" 
+                           Style="{StaticResource ModernButton}"
+                           Click="OpenDatabaseButton_Click"
+                           Background="#28A745"/>
                 </StackPanel>
 
                 <!-- Output Section -->
