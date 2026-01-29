@@ -1,16 +1,46 @@
-# Modern .NET 8 WPF Desktop Application
+# FlexBook - Modern .NET 8 WPF Desktop Application
 
-A modern Windows desktop application built with **WPF (Windows Presentation Foundation)** and **.NET 8.0**, the successor to WinForms.
+**Version 1.0.0**
+
+A modern Windows desktop application built with **WPF (Windows Presentation Foundation)** and **.NET 8.0**, featuring a FlexDesk-inspired layout and powerful web analysis tools.
 
 ## 🚀 Features
 
-- **Modern UI Design**: Clean, contemporary interface with rounded corners and custom styling
-- **Interactive Controls**: Text input, buttons, and real-time output display
-- **Action Logging**: Tracks and displays recent user actions with timestamps
-- **Responsive Layout**: Organized with Grid and StackPanel layouts
-- **Custom Styles**: Modern button and textbox styles with hover effects
-- **SQLite Database Support**: Access and query external SQLite databases
-- **Database Manager**: Full-featured database viewer and query tool
+### **FlexDesk-Style Interface**
+- **Menu Bar** (35px): File, Edit, View, Help menus with full functionality
+- **Docker Bar** (48px): Icon-based navigation with blue theme
+- **Dynamic Title Header** (60px): Context-aware header with icon, title, and subtitle
+- **Main Content Area**: Flexible workspace with frame-based navigation
+- **Sidebar** (300px): Context-sensitive information panel
+
+### **Web Analyzer** 🌐
+- **Modern Web Browser**: Microsoft Edge WebView2 (Chromium-based)
+  - No iframe/connection restrictions
+  - Full navigation controls (back, forward, refresh)
+  - URL bar with auto-https
+  - Loading indicator with progress
+  
+- **View Source**: Professional HTML source viewer
+  - Syntax highlighting (Consolas font)
+  - **Search Functionality**:
+    - Real-time search as you type
+    - Case-insensitive matching
+    - Navigation buttons (▲ Previous, ▼ Next)
+    - Match counter display (e.g., "3 of 15")
+    - Keyboard shortcuts (Enter, Shift+Enter, Escape)
+    - Auto-scroll to highlighted matches
+    - Text selection highlighting
+
+### **File & Folder Management**
+- Open and analyze files with detailed metadata
+- Browse folders with file/subfolder statistics
+- Dynamic sidebar updates with contextual information
+
+### **Additional Features**
+- Custom window chrome with minimize/maximize/close controls
+- Draggable menu bar
+- Modern dark theme (#1E1E1E, #252526, #4A9EFF)
+- Responsive layout design
 
 ## 🛠️ Technology Stack
 
@@ -18,11 +48,14 @@ A modern Windows desktop application built with **WPF (Windows Presentation Foun
 - **WPF** - Windows Presentation Foundation
 - **XAML** - Declarative UI markup
 - **C# 12** - Latest C# language features
+- **Microsoft.Web.WebView2** - Modern Chromium-based browser control
+- **System.Data.SQLite** - SQLite database support
 
 ## 📋 Requirements
 
 - Windows 10/11
 - .NET 8.0 SDK or Runtime
+- Microsoft Edge WebView2 Runtime (usually pre-installed on Windows 10/11)
 
 ## 🏃 Running the Application
 
@@ -52,112 +85,159 @@ dotnet run --project ModernDesktopApp.csproj
 
 ```
 flex_book/
-├── MainWindow.xaml          # Main UI layout and styling
-├── MainWindow.xaml.cs       # Main window code-behind
-├── DatabaseWindow.xaml      # Database manager UI
-├── DatabaseWindow.xaml.cs   # Database manager code-behind
-├── DatabaseHelper.cs        # SQLite database helper class
-├── App.xaml                 # Application resources
-├── App.xaml.cs              # Application startup code
-├── ModernDesktopApp.csproj  # Project configuration
-├── flex_book.bat            # Launcher batch file
+├── FlexBookWindow.xaml       # Main FlexDesk-style window
+├── FlexBookWindow.xaml.cs    # Main window code-behind
+├── WebAnalyzerPage.xaml      # Web analyzer page UI
+├── WebAnalyzerPage.xaml.cs   # Web analyzer code-behind
+├── MainWindow.xaml           # Original demo window
+├── MainWindow.xaml.cs        # Demo window code-behind
+├── DatabaseWindow.xaml       # Database manager UI
+├── DatabaseWindow.xaml.cs    # Database manager code-behind
+├── DatabaseHelper.cs         # SQLite database helper class
+├── App.xaml                  # Application resources
+├── App.xaml.cs               # Application startup code
+├── ModernDesktopApp.csproj   # Project configuration
+├── flex_book.bat             # Launcher batch file
 ├── reference/
-│   └── git_note.md          # Git commands reference
-└── README.md                # This file
+│   ├── git_note.md           # Git commands reference
+│   └── firefox_browser_integration_analysis.md
+└── README.md                 # This file
 ```
 
-## 🎨 UI Components
+## 🎨 FlexDesk Layout Components
 
-### Header Section
-- Application title and description
+### Docker Bar Icons
+- 🏠 **Home** - Welcome page
+- 🌐 **Web Analyzer** - Browse and analyze web pages
+- 📝 **Quick Book** - Note-taking (coming soon)
+- 📊 **Analytics** - Data visualization (coming soon)
+- 👤 **Profile** - User settings (coming soon)
+- ⚙️ **Settings** - Application configuration (coming soon)
 
-### Main Content
-- **Input Field**: Text input for user's name
-- **Buttons**: 
-  - "Say Hello" - Greets the user
-  - "Clear" - Resets the form
-- **Output Area**: Displays greeting messages
-- **Action Log**: Shows timestamped list of recent actions
+### Menu System
+- **File**: Open File, Open Folder, Exit
+- **Edit**: Settings
+- **View**: Zoom In, Zoom Out, Reset Zoom
+- **Help**: About
 
-### Footer
-- Technology badges showing .NET 8.0, WPF, and Modern UI Design
+## 🌐 Web Analyzer Guide
 
-## 💡 Key Differences from WinForms
+### Browser Tab
+1. Enter URL in the text box (e.g., `www.google.com`)
+2. Press **Enter** or click **🔍** to navigate
+3. Use **◀ Back** and **▶ Forward** to navigate history
+4. Click **🔄 Refresh** to reload the page
 
-1. **XAML-based UI**: Declarative markup instead of designer-generated code
-2. **Better Styling**: Rich styling system with templates and triggers
-3. **Data Binding**: More powerful two-way data binding capabilities
-4. **Vector Graphics**: Resolution-independent UI rendering
-5. **Modern Architecture**: Separation of UI (XAML) and logic (C#)
+### View Source Tab
+1. Switch to **📄 View Source** tab to see HTML
+2. Use the search box to find specific text:
+   - Type search term (e.g., `<script>`, `class=`, `div`)
+   - Results appear instantly with counter
+   - Click **▼** or press **Enter** for next match
+   - Click **▲** or press **Shift+Enter** for previous match
+   - Press **Escape** to clear search
+3. Source code is syntax-highlighted for readability
 
-## 🔧 Customization
+### Common Search Examples
+- `<div>` - Find all div tags
+- `class=` - Find all class attributes
+- `script` - Find all script references
+- `href=` - Find all links
+- `function` - Find JavaScript functions
 
-The application uses custom styles defined in `MainWindow.xaml`:
-- `ModernButton`: Styled buttons with hover effects
-- `ModernTextBox`: Rounded textboxes with padding
+## 🔧 Key Advantages Over Legacy Solutions
 
-You can modify colors, fonts, and layouts directly in the XAML file.
+### WebView2 vs GeckoFX (Firefox)
+| Feature | WebView2 (FlexBook) | GeckoFX (Legacy) |
+|---------|---------------------|------------------|
+| Browser Engine | Chromium (Edge) | Gecko (Firefox) |
+| .NET Support | .NET 8 WPF | .NET Framework WinForms |
+| Runtime | Built into Windows | Requires 50+ Firefox DLLs |
+| iframe Support | ✅ Full support | ❌ Connection rejections |
+| Updates | Auto-updates with Edge | Manual DLL updates |
+| Modern Websites | ✅ Full compatibility | ⚠️ Older engine |
+| File Size | Small (uses system) | Large (150+ MB) |
 
-## 📝 Code Highlights
+## 💡 Color Palette
 
-### Event Handlers
-- `SayHelloButton_Click`: Validates input and displays greeting
-- `ClearButton_Click`: Resets form fields
-- `AddAction`: Logs user actions with timestamps
+The application uses a consistent dark theme:
+- **Backgrounds**: #1E1E1E, #2D2D30, #252526, #2B2B2B, #3C3C3C
+- **Accent Blue**: #4A9EFF (primary), #007ACC (hover)
+- **Text Colors**: #CCCCCC (primary), #888888 (secondary), White (headers)
+- **Borders**: #3C3C3C, #1E1E1E
+- **Syntax Highlighting**: #CE9178 (HTML/code)
 
-### Features Demonstrated
-- Input validation
-- Dynamic UI updates
-- List management (keeping last 10 actions)
-- Color-coded feedback (blue for success, red for errors)
+## 🎯 Version 1.0.0 Features
 
-## 🗄️ Database Manager
+### ✅ Implemented
+- FlexDesk-style layout with docker bar and sidebar
+- Web Analyzer with WebView2 browser
+- HTML source viewer with search functionality
+- File and folder browsing with metadata
+- Custom window controls
+- Dynamic header updates
+- Context-aware sidebar
+- Menu system with keyboard shortcuts
 
-The application includes a powerful SQLite database manager that can access external databases.
+### 🔜 Planned for Future Versions
+- Quick Book note-taking feature
+- Analytics dashboard
+- Profile management
+- Advanced settings dialog
+- Database write operations
+- Export functionality (CSV, PDF)
+- Plugin system
+- Custom themes
 
-### Features:
-- **Database Connection**: Connects to `C:\Users\T917991\AppData\Roaming\com.flexdesk.app\flex_desk_db`
-- **Table Browser**: View all tables in the database
-- **Schema Viewer**: See column definitions for each table
-- **SQL Query Editor**: Execute custom SQL queries
-- **Data Grid**: View query results in a sortable, resizable grid
-- **Performance Metrics**: Shows query execution time and row count
+## 📝 Development Notes
 
-### Usage:
-1. Click the "Open Database" button on the main window
-2. Select a table from the left panel to view its schema
-3. Use the pre-filled query or write your own SQL
-4. Click "Execute Query" to run the query
-5. Results appear in the data grid below
+### Building from Source
+```bash
+# Restore dependencies
+dotnet restore
 
-### Capabilities:
-- ✅ Read data from any table
-- ✅ Execute complex SELECT queries with WHERE, JOIN, etc.
-- ✅ View database statistics (size, table count, row counts)
-- ✅ Export-ready data grid (can be copied to Excel)
-- ✅ Shared database access (other applications can use the same database)
+# Build the project
+dotnet build
 
-**Note:** The database manager has read-only capabilities by default for safety. The database can be accessed simultaneously by multiple applications.
+# Run the application
+dotnet run
 
-## 🎯 Next Steps
+# Publish a release
+dotnet publish -c Release
+```
 
-To extend this application, you could add:
-- Menu bar with File/Edit/Help menus
-- Toolbar with icons
-- Database write operations (INSERT, UPDATE, DELETE)
-- Export data to CSV/Excel
-- Database backup and restore
-- Settings dialog
-- File I/O operations
-- Charts and graphs
-- Custom user controls
+### NuGet Packages
+- `Microsoft.Web.WebView2` (v1.0.3719.77) - Web browser component
+- `System.Data.SQLite.Core` (v1.0.119.0) - SQLite database support
+
+## 🐛 Troubleshooting
+
+### WebView2 Runtime Error
+If you see "Failed to initialize WebView2", install the Microsoft Edge WebView2 Runtime:
+- Download from: https://developer.microsoft.com/microsoft-edge/webview2/
+- Or it's usually pre-installed on Windows 10/11
+
+### Database Connection Issues
+The database path is configured for: `C:\Users\T917991\AppData\Roaming\com.flexdesk.app\flex_desk_db`
+Update `DatabaseWindow.xaml.cs` to point to your database location.
 
 ## 📚 Learn More
 
 - [WPF Documentation](https://learn.microsoft.com/en-us/dotnet/desktop/wpf/)
 - [.NET 8.0 Documentation](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8)
 - [XAML Overview](https://learn.microsoft.com/en-us/dotnet/desktop/wpf/xaml/)
+- [WebView2 Documentation](https://learn.microsoft.com/en-us/microsoft-edge/webview2/)
+
+## 🤝 Contributing
+
+This is a personal project, but suggestions and feedback are welcome!
+
+## 📄 License
+
+This project is for personal use and learning purposes.
 
 ---
 
-**Built with .NET 8.0 and WPF** 🎉
+**FlexBook v1.0.0** - Built with .NET 8.0, WPF, and Microsoft Edge WebView2 🎉
+
+*Inspired by FlexDesk layout design | Modern, Fast, Powerful*
