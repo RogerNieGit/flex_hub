@@ -1,11 +1,11 @@
-<Window x:Class="ModernDesktopApp.FlexBookWindow"
+<Window x:Class="ModernDesktopApp.FlexHubWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ModernDesktopApp"
         mc:Ignorable="d"
-        Title="FlexBook" 
+        Title="FlexHub"
         Height="900" 
         Width="1600"
         WindowState="Maximized"
@@ -199,9 +199,9 @@
                                       Margin="0,0,15,0"
                                       VerticalAlignment="Center"/>
                             <StackPanel VerticalAlignment="Center">
-                                <TextBlock x:Name="HeaderTitle" 
-                                          Text="Welcome to FlexBook" 
-                                          FontSize="18" 
+                                <TextBlock x:Name="HeaderTitle"
+                                          Text="Welcome to FlexHub"
+                                          FontSize="18"
                                           FontWeight="SemiBold"
                                           Foreground="White"/>
                                 <TextBlock x:Name="HeaderSubtitle" 

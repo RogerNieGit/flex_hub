@@ -1,21 +1,29 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Media;
 using Microsoft.Web.WebView2.Core;
+using Microsoft.Win32;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using Key = System.Windows.Input.Key;
 
 namespace ModernDesktopApp;
 
 /// <summary>
-/// Web Analyzer Page with Microsoft Edge WebView2
+/// Web Analyzer Page with Microsoft Edge WebView2 and AI Analysis
 /// </summary>
 public partial class WebAnalyzerPage : Page
 {
+    private readonly AiAnalysisService _aiService;
+    private string _lastAiResponse = "";
+
     public WebAnalyzerPage()
     {
         InitializeComponent();
+        _aiService = new AiAnalysisService();
         InitializeWebView();
     }
 
@@ -311,6 +319,252 @@ public partial class WebAnalyzerPage : Page
         catch
         {
             return html;
+        }
+    }
+
+    #endregion
+
+    #region AI Analysis
+
+    private void AiSettings_Click(object sender, RoutedEventArgs e)
+    {
+        var settingsDialog = new AiSettingsDialog(_aiService);
+        settingsDialog.Owner = Window.GetWindow(this);
+        
+        if (settingsDialog.ShowDialog() == true)
+        {
+            System.Windows.MessageBox.Show(
+                "AI settings saved successfully!\nYou can now use AI analysis features.",
+                "Settings Saved",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+        }
+    }
+
+    private async void QuickAnalyze_Click(object sender, RoutedEventArgs e)
+    {
+        if (!_aiService.IsConfigured)
+        {
+            var result = System.Windows.MessageBox.Show(
+                "AI service is not configured. Would you like to configure it now?",
+                "AI Not Configured",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+            
+            if (result == MessageBoxResult.Yes)
+            {
+                AiSettings_Click(sender, e);
+            }
+            return;
+        }
+
+        var selectedItem = QuickAnalysisComboBox.SelectedItem as ComboBoxItem;
+        if (selectedItem == null)
+        {
+            System.Windows.MessageBox.Show(
+                "Please select an analysis type.",
+                "No Selection",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+            return;
+        }
+
+        var analysisType = Enum.Parse<AnalysisType>(selectedItem.Tag.ToString() ?? "Summary");
+        var htmlContent = SourceTextBox.Text;
+
+        if (string.IsNullOrEmpty(htmlContent))
+        {
+            System.Windows.MessageBox.Show(
+                "No HTML content available. Please navigate to a webpage first.",
+                "No Content",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+            return;
+        }
+
+        await PerformAiAnalysis(analysisType, htmlContent);
+    }
+
+    private async void AskAi_Click(object sender, RoutedEventArgs e)
+    {
+        var query = CustomQueryTextBox.Text.Trim();
+        
+        if (query == "Ask a question about the HTML..." || string.IsNullOrEmpty(query))
+        {
+            System.Windows.MessageBox.Show(
+                "Please enter a question.",
+                "No Question",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+            return;
+        }
+
+        if (!_aiService.IsConfigured)
+        {
+            var result = System.Windows.MessageBox.Show(
+                "AI service is not configured. Would you like to configure it now?",
+                "AI Not Configured",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+            
+            if (result == MessageBoxResult.Yes)
+            {
+                AiSettings_Click(sender, e);
+            }
+            return;
+        }
+
+        var htmlContent = SourceTextBox.Text;
+        
+        if (string.IsNullOrEmpty(htmlContent))
+        {
+            System.Windows.MessageBox.Show(
+                "No HTML content available. Please navigate to a webpage first.",
+                "No Content",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+            return;
+        }
+
+        await PerformCustomAiQuery(query, htmlContent);
+    }
+
+    private void CustomQuery_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter)
+        {
+            AskAi_Click(sender, e);
+        }
+    }
+
+    private async System.Threading.Tasks.Task PerformAiAnalysis(AnalysisType analysisType, string htmlContent)
+    {
+        // Add user query message
+        AddChatMessage($"📊 {analysisType}", true);
+        
+        // Add "thinking" message
+        var thinkingBorder = AddChatMessage("🤔 Analyzing...", false);
+        
+        try
+        {
+            var response = await _aiService.QuickAnalysis(htmlContent, analysisType);
+            _lastAiResponse = response;
+            
+            // Remove thinking message
+            AiChatPanel.Children.Remove(thinkingBorder);
+            
+            // Add AI response
+            AddChatMessage(response, false);
+        }
+        catch (Exception ex)
+        {
+            AiChatPanel.Children.Remove(thinkingBorder);
+            AddChatMessage($"❌ Error: {ex.Message}", false);
+        }
+    }
+
+    private async System.Threading.Tasks.Task PerformCustomAiQuery(string query, string htmlContent)
+    {
+        // Add user query message
+        AddChatMessage(query, true);
+        
+        // Clear input
+        CustomQueryTextBox.Text = "Ask a question about the HTML...";
+        
+        // Add "thinking" message
+        var thinkingBorder = AddChatMessage("🤔 Analyzing...", false);
+        
+        try
+        {
+            var response = await _aiService.AnalyzeHtml(htmlContent, query);
+            _lastAiResponse = response;
+            
+            // Remove thinking message
+            AiChatPanel.Children.Remove(thinkingBorder);
+            
+            // Add AI response
+            AddChatMessage(response, false);
+        }
+        catch (Exception ex)
+        {
+            AiChatPanel.Children.Remove(thinkingBorder);
+            AddChatMessage($"❌ Error: {ex.Message}", false);
+        }
+    }
+
+    private Border AddChatMessage(string message, bool isUser)
+    {
+        var border = new Border
+        {
+            Background = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(isUser ? "#2D2D30" : "#252525")),
+            CornerRadius = new CornerRadius(8),
+            Padding = new Thickness(15),
+            Margin = new Thickness(0, 0, 0, 10),
+            HorizontalAlignment = isUser ? System.Windows.HorizontalAlignment.Right : System.Windows.HorizontalAlignment.Stretch,
+            MaxWidth = isUser ? 600 : double.PositiveInfinity
+        };
+
+        var textBlock = new TextBlock
+        {
+            Text = message,
+            Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#CCCCCC")),
+            FontSize = 13,
+            TextWrapping = TextWrapping.Wrap,
+            FontFamily = message.StartsWith("❌") || message.StartsWith("🤔") ? new System.Windows.Media.FontFamily("Segoe UI") : new System.Windows.Media.FontFamily("Segoe UI")
+        };
+
+        if (!isUser && !message.StartsWith("❌") && !message.StartsWith("🤔"))
+        {
+            textBlock.FontFamily = new System.Windows.Media.FontFamily("Consolas");
+            textBlock.FontSize = 12;
+        }
+
+        border.Child = textBlock;
+        AiChatPanel.Children.Add(border);
+        
+        return border;
+    }
+
+    private void Export_Click(object sender, RoutedEventArgs e)
+    {
+        if (string.IsNullOrEmpty(_lastAiResponse))
+        {
+            System.Windows.MessageBox.Show(
+                "No AI analysis result to export. Please run an analysis first.",
+                "Nothing to Export",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+            return;
+        }
+
+        var dialog = new Microsoft.Win32.SaveFileDialog
+        {
+            Title = "Export AI Analysis Result",
+            Filter = "Text File (*.txt)|*.txt|Markdown File (*.md)|*.md|JSON File (*.json)|*.json|All Files (*.*)|*.*",
+            DefaultExt = ".txt",
+            FileName = $"ai_analysis_{DateTime.Now:yyyyMMdd_HHmmss}"
+        };
+
+        if (dialog.ShowDialog() == true)
+        {
+            try
+            {
+                File.WriteAllText(dialog.FileName, _lastAiResponse);
+                
+                System.Windows.MessageBox.Show(
+                    $"Analysis exported successfully to:\n{dialog.FileName}",
+                    "Export Successful",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(
+                    $"Failed to export: {ex.Message}",
+                    "Export Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
         }
     }
 

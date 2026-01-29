@@ -344,6 +344,216 @@
                     </ScrollViewer>
                 </Grid>
             </TabItem>
+
+            <!-- AI Analysis Tab -->
+            <TabItem Header="🤖 AI Analysis">
+                <Grid Background="#1E1E1E">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- AI Toolbar -->
+                    <Border Grid.Row="0" 
+                           Background="#252525" 
+                           BorderBrush="#333" 
+                           BorderThickness="0,0,0,1"
+                           Padding="15,10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Quick Analysis Buttons -->
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,10,0">
+                                <ComboBox x:Name="QuickAnalysisComboBox"
+                                         Width="200"
+                                         Height="30"
+                                         Background="#1E1E1E"
+                                         Foreground="#CCCCCC"
+                                         BorderBrush="#3C3C3C"
+                                         BorderThickness="1"
+                                         FontSize="12">
+                                    <ComboBoxItem Content="📊 Summary" Tag="Summary"/>
+                                    <ComboBoxItem Content="🔗 Extract Links" Tag="ExtractLinks"/>
+                                    <ComboBoxItem Content="🖼️ Extract Images" Tag="ExtractImages"/>
+                                    <ComboBoxItem Content="📝 Extract Forms" Tag="ExtractForms"/>
+                                    <ComboBoxItem Content="⚡ Extract Scripts" Tag="ExtractScripts"/>
+                                    <ComboBoxItem Content="🎯 SEO Analysis" Tag="SEOAnalysis"/>
+                                    <ComboBoxItem Content="🏗️ Structure Analysis" Tag="StructureAnalysis"/>
+                                    <ComboBoxItem Content="📧 Extract Contact Info" Tag="ExtractContact"/>
+                                    <ComboBoxItem Content="💰 Extract Prices" Tag="ExtractPrices"/>
+                                    <ComboBoxItem Content="♿ Accessibility Check" Tag="AccessibilityCheck"/>
+                                </ComboBox>
+                                
+                                <Button Content="Analyze"
+                                       Width="80"
+                                       Height="30"
+                                       Margin="10,0,0,0"
+                                       Background="#4A9EFF"
+                                       Foreground="White"
+                                       BorderThickness="0"
+                                       FontSize="12"
+                                       Cursor="Hand"
+                                       Click="QuickAnalyze_Click">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Background" Value="#4A9EFF"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#007ACC"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </StackPanel>
+
+                            <!-- Export & Settings -->
+                            <StackPanel Grid.Column="2" Orientation="Horizontal">
+                                <Button Content="💾 Export"
+                                       Width="80"
+                                       Height="30"
+                                       Margin="0,0,10,0"
+                                       Background="#3C3C3C"
+                                       Foreground="#CCCCCC"
+                                       BorderThickness="0"
+                                       FontSize="12"
+                                       Cursor="Hand"
+                                       Click="Export_Click">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Background" Value="#3C3C3C"/>
+                                            <Setter Property="Foreground" Value="#CCCCCC"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#4A9EFF"/>
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                                
+                                <Button Content="⚙️ AI Settings"
+                                       Width="100"
+                                       Height="30"
+                                       Background="#3C3C3C"
+                                       Foreground="#CCCCCC"
+                                       BorderThickness="0"
+                                       FontSize="12"
+                                       Cursor="Hand"
+                                       Click="AiSettings_Click">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Background" Value="#3C3C3C"/>
+                                            <Setter Property="Foreground" Value="#CCCCCC"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#4A9EFF"/>
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- AI Chat Area -->
+                    <ScrollViewer Grid.Row="1" 
+                                 VerticalScrollBarVisibility="Auto"
+                                 Padding="15">
+                        <StackPanel x:Name="AiChatPanel">
+                            <!-- Welcome Message -->
+                            <Border Background="#252525" 
+                                   CornerRadius="8" 
+                                   Padding="15"
+                                   Margin="0,0,0,10">
+                                <StackPanel>
+                                    <TextBlock Text="🤖 AI HTML Analyzer" 
+                                              FontSize="16" 
+                                              FontWeight="SemiBold"
+                                              Foreground="#4A9EFF"
+                                              Margin="0,0,0,10"/>
+                                    <TextBlock Text="Ask me anything about the HTML source code!" 
+                                              FontSize="13" 
+                                              Foreground="#CCCCCC"
+                                              TextWrapping="Wrap"
+                                              Margin="0,0,0,10"/>
+                                    <TextBlock Foreground="#888888" 
+                                              FontSize="11" 
+                                              TextWrapping="Wrap">
+                                        <Run Text="• Use Quick Analysis dropdown for common tasks"/>
+                                        <LineBreak/>
+                                        <Run Text="• Type custom questions in the input below"/>
+                                        <LineBreak/>
+                                        <Run Text="• Export results to file or clipboard"/>
+                                        <LineBreak/>
+                                        <Run Text="• Configure AI settings with your Fuelix AI API key"/>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- Custom Query Input -->
+                    <Border Grid.Row="2" 
+                           Background="#252525" 
+                           BorderBrush="#333" 
+                           BorderThickness="0,1,0,0"
+                           Padding="15,10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBox x:Name="CustomQueryTextBox"
+                                    Grid.Column="0"
+                                    Height="35"
+                                    Padding="10,8"
+                                    Background="#1E1E1E"
+                                    Foreground="#CCCCCC"
+                                    BorderBrush="#3C3C3C"
+                                    BorderThickness="1"
+                                    FontSize="12"
+                                    VerticalContentAlignment="Center"
+                                    KeyDown="CustomQuery_KeyDown"
+                                    Text="Ask a question about the HTML..."/>
+
+                            <Button Grid.Column="1"
+                                   Content="Ask AI"
+                                   Width="80"
+                                   Height="35"
+                                   Margin="10,0,0,0"
+                                   Background="#4A9EFF"
+                                   Foreground="White"
+                                   BorderThickness="0"
+                                   FontSize="12"
+                                   Cursor="Hand"
+                                   Click="AskAi_Click">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Background" Value="#4A9EFF"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#007ACC"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </TabItem>
         </TabControl>
     </Grid>
 </Page>

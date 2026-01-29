@@ -1,10 +1,9 @@
 @echo off
-REM Modern .NET 8 WPF Application Launcher
-REM This batch file launches the ModernDesktopApp
+REM FlexHub - Modern .NET 8 WPF Application Launcher
 
 echo.
 echo ========================================
-echo  Modern .NET 8 WPF Application
+echo  FlexHub - Modern .NET 8 WPF App
 echo ========================================
 echo.
 echo Starting application...

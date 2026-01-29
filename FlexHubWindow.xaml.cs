@@ -5,11 +5,11 @@ using System.Windows.Input;
 namespace ModernDesktopApp;
 
 /// <summary>
-/// FlexBook Main Window - FlexDesk-style layout
+/// FlexHub Main Window - FlexDesk-style layout
 /// </summary>
-public partial class FlexBookWindow : Window
+public partial class FlexHubWindow : Window
 {
-    public FlexBookWindow()
+    public FlexHubWindow()
     {
         InitializeComponent();
         LoadHomePage();
@@ -125,13 +125,13 @@ public partial class FlexBookWindow : Window
     private void About_Click(object sender, RoutedEventArgs e)
     {
         System.Windows.MessageBox.Show(
-            "FlexBook - Modern .NET 8 WPF Application\n\n" +
+            "FlexHub - Modern .NET 8 WPF Application\n\n" +
             "Built with:\n" +
             "- .NET 8.0\n" +
             "- WPF (Windows Presentation Foundation)\n" +
             "- C# 12\n\n" +
             "Inspired by FlexDesk layout design",
-            "About FlexBook",
+            "About FlexHub",
             MessageBoxButton.OK,
             MessageBoxImage.Information);
     }
@@ -182,7 +182,7 @@ public partial class FlexBookWindow : Window
 
     private void LoadHomePage()
     {
-        UpdateHeader("🏠", "Welcome to FlexBook", "Modern .NET 8 WPF Application");
+        UpdateHeader("🏠", "Welcome to FlexHub", "Modern .NET 8 WPF Application");
         ResetSidebar();
     }
 

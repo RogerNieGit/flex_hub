@@ -1,4 +1,4 @@
-# FlexBook - Modern .NET 8 WPF Desktop Application
+# FlexHub - Modern .NET 8 WPF Desktop Application
 
 **Version 1.0.0**
 
@@ -31,6 +31,23 @@ A modern Windows desktop application built with **WPF (Windows Presentation Foun
     - Auto-scroll to highlighted matches
     - Text selection highlighting
 
+- **AI Analysis** 🤖 (NEW!): Powered by Fuelix AI
+  - **Quick Analysis** with 10 pre-built analyzers:
+    - 📊 Summary - Get webpage overview
+    - 🔗 Extract Links - Find all links with anchor text
+    - 🖼️ Extract Images - List images with alt text
+    - 📝 Extract Forms - Identify form fields and purposes
+    - ⚡ Extract Scripts - List external scripts
+    - 🎯 SEO Analysis - Check SEO optimization
+    - 🏗️ Structure Analysis - Analyze HTML semantics
+    - 📧 Extract Contact Info - Find emails, phones, addresses
+    - 💰 Extract Prices - Locate monetary values
+    - ♿ Accessibility Check - Review accessibility
+  - **Custom Queries**: Ask any question about the HTML
+  - **Chat Interface**: Conversational AI analysis
+  - **Export Results**: Save to TXT, MD, or JSON
+  - **Powered by**: Fuelix AI (OpenAI-compatible API)
+
 ### **File & Folder Management**
 - Open and analyze files with detailed metadata
 - Browse folders with file/subfolder statistics
@@ -60,9 +77,9 @@ A modern Windows desktop application built with **WPF (Windows Presentation Foun
 ## 🏃 Running the Application
 
 ### Option 1: Using the batch file (Easiest!)
-Simply double-click `flex_book.bat` or run in CLI:
+Simply double-click `flex_hub.bat` or run in CLI:
 ```bash
-flex_book.bat
+flex_hub.bat
 ```
 
 ### Option 2: Using dotnet CLI
@@ -84,9 +101,9 @@ dotnet run --project ModernDesktopApp.csproj
 ## 📁 Project Structure
 
 ```
-flex_book/
-├── FlexBookWindow.xaml       # Main FlexDesk-style window
-├── FlexBookWindow.xaml.cs    # Main window code-behind
+flex_hub/
+├── FlexHubWindow.xaml       # Main FlexDesk-style window
+├── FlexHubWindow.xaml.cs    # Main window code-behind
 ├── WebAnalyzerPage.xaml      # Web analyzer page UI
 ├── WebAnalyzerPage.xaml.cs   # Web analyzer code-behind
 ├── MainWindow.xaml           # Original demo window
@@ -97,7 +114,7 @@ flex_book/
 ├── App.xaml                  # Application resources
 ├── App.xaml.cs               # Application startup code
 ├── ModernDesktopApp.csproj   # Project configuration
-├── flex_book.bat             # Launcher batch file
+├── flex_hub.bat             # Launcher batch file
 ├── reference/
 │   ├── git_note.md           # Git commands reference
 │   └── firefox_browser_integration_analysis.md
@@ -145,10 +162,64 @@ flex_book/
 - `href=` - Find all links
 - `function` - Find JavaScript functions
 
+### AI Analysis Tab 🤖 (NEW!)
+
+#### Setting Up AI
+1. Click **⚙️ AI Settings** button
+2. Enter your Fuelix AI API key (get from https://proxy.fuelix.ai)
+3. Optional: Customize base URL or model
+4. Click **Test Connection** to verify
+5. Click **Save** to activate AI features
+
+#### Quick Analysis
+1. Navigate to a webpage in the Browser tab
+2. Switch to **🤖 AI Analysis** tab
+3. Select analysis type from dropdown:
+   - **📊 Summary** - Get overview of webpage content
+   - **🔗 Extract Links** - List all links with context
+   - **🖼️ Extract Images** - Find images with alt text
+   - **📝 Extract Forms** - Analyze form fields
+   - **⚡ Extract Scripts** - List external scripts
+   - **🎯 SEO Analysis** - Check SEO optimization
+   - **🏗️ Structure Analysis** - Review HTML structure
+   - **📧 Extract Contact Info** - Find contact details
+   - **💰 Extract Prices** - Locate pricing information
+   - **♿ Accessibility Check** - Review accessibility
+4. Click **Analyze** button
+5. AI response appears in chat interface
+
+#### Custom Queries
+1. Type your question in the input box at bottom
+2. Examples:
+   - "What is the main purpose of this page?"
+   - "Extract all product names and prices"
+   - "Find all email addresses and phone numbers"
+   - "Summarize the key features mentioned"
+   - "What technologies is this site using?"
+3. Press **Enter** or click **Ask AI**
+4. View response in chat interface
+
+#### Export Results
+1. After receiving AI analysis
+2. Click **💾 Export** button
+3. Choose format:
+   - Text File (.txt)
+   - Markdown File (.md)
+   - JSON File (.json)
+4. Select save location
+5. Analysis saved with timestamp
+
+#### Features
+- **Chat Interface**: Conversational AI interaction
+- **Multiple Queries**: Ask follow-up questions
+- **Context Aware**: AI has access to full HTML
+- **Fast Responses**: Powered by Fuelix AI
+- **Flexible Models**: Support for GPT-4, Claude, etc.
+
 ## 🔧 Key Advantages Over Legacy Solutions
 
 ### WebView2 vs GeckoFX (Firefox)
-| Feature | WebView2 (FlexBook) | GeckoFX (Legacy) |
+| Feature | WebView2 (FlexHub) | GeckoFX (Legacy) |
 |---------|---------------------|------------------|
 | Browser Engine | Chromium (Edge) | Gecko (Firefox) |
 | .NET Support | .NET 8 WPF | .NET Framework WinForms |
@@ -238,6 +309,6 @@ This project is for personal use and learning purposes.
 
 ---
 
-**FlexBook v1.0.0** - Built with .NET 8.0, WPF, and Microsoft Edge WebView2 🎉
+**FlexHub v1.0.0** - Built with .NET 8.0, WPF, and Microsoft Edge WebView2 🎉
 
 *Inspired by FlexDesk layout design | Modern, Fast, Powerful*
