@@ -241,6 +241,7 @@
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
                             <TextBlock Grid.Column="0"
@@ -321,6 +322,31 @@
                                       VerticalAlignment="Center"
                                       Foreground="#888888"
                                       FontSize="11"/>
+
+                            <Button Grid.Column="5"
+                                   Content="💾 Save to File"
+                                   Width="110"
+                                   Height="30"
+                                   Margin="15,0,0,0"
+                                   Background="#4A9EFF"
+                                   Foreground="White"
+                                   BorderThickness="0"
+                                   FontSize="12"
+                                   Cursor="Hand"
+                                   Click="SaveSource_Click"
+                                   ToolTip="Save HTML source to file">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Background" Value="#4A9EFF"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#007ACC"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
                         </Grid>
                     </Border>
 
