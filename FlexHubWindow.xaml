@@ -50,6 +50,26 @@
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Padding" Value="10,5"/>
         </Style>
+
+        <!-- Style for SubMenu Items to prevent greyed out appearance -->
+        <Style TargetType="MenuItem">
+            <Setter Property="Foreground" Value="#CCCCCC"/>
+            <Setter Property="Background" Value="#2D2D30"/>
+            <Style.Triggers>
+                <Trigger Property="IsHighlighted" Value="True">
+                    <Setter Property="Background" Value="#3E3E42"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Foreground" Value="#656565"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Separator style for dark theme -->
+        <Style TargetType="Separator">
+            <Setter Property="Background" Value="#3C3C3C"/>
+            <Setter Property="Margin" Value="5,2"/>
+        </Style>
     </Window.Resources>
 
     <!-- Main App Container -->
@@ -80,22 +100,22 @@
                       Background="Transparent" 
                       Foreground="#CCCCCC"
                       VerticalAlignment="Center">
-                    <MenuItem Header="File" Foreground="#CCCCCC" Background="Transparent" Padding="10,5">
-                        <MenuItem Header="Open File" Click="OpenFile_Click" Foreground="#CCCCCC" Background="Transparent" Padding="10,5"/>
-                        <MenuItem Header="Open Folder" Click="OpenFolder_Click" Foreground="#CCCCCC" Background="Transparent" Padding="10,5"/>
+                    <MenuItem Header="File" Padding="10,5">
+                        <MenuItem Header="Open File" Click="OpenFile_Click" Padding="10,5"/>
+                        <MenuItem Header="Open Folder" Click="OpenFolder_Click" Padding="10,5"/>
                         <Separator/>
-                        <MenuItem Header="Exit" Click="Exit_Click" Foreground="#CCCCCC" Background="Transparent" Padding="10,5"/>
+                        <MenuItem Header="Exit" Click="Exit_Click" Padding="10,5"/>
                     </MenuItem>
-                    <MenuItem Header="Edit" Foreground="#CCCCCC" Background="Transparent" Padding="10,5">
-                        <MenuItem Header="Settings" Click="Settings_Click" Foreground="#CCCCCC" Background="Transparent" Padding="10,5"/>
+                    <MenuItem Header="Edit" Padding="10,5">
+                        <MenuItem Header="Settings" Click="Settings_Click" Padding="10,5"/>
                     </MenuItem>
-                    <MenuItem Header="View" Foreground="#CCCCCC" Background="Transparent" Padding="10,5">
-                        <MenuItem Header="Zoom In" Click="ZoomIn_Click" Foreground="#CCCCCC" Background="Transparent" Padding="10,5"/>
-                        <MenuItem Header="Zoom Out" Click="ZoomOut_Click" Foreground="#CCCCCC" Background="Transparent" Padding="10,5"/>
-                        <MenuItem Header="Reset Zoom" Click="ResetZoom_Click" Foreground="#CCCCCC" Background="Transparent" Padding="10,5"/>
+                    <MenuItem Header="View" Padding="10,5">
+                        <MenuItem Header="Zoom In" Click="ZoomIn_Click" Padding="10,5"/>
+                        <MenuItem Header="Zoom Out" Click="ZoomOut_Click" Padding="10,5"/>
+                        <MenuItem Header="Reset Zoom" Click="ResetZoom_Click" Padding="10,5"/>
                     </MenuItem>
-                    <MenuItem Header="Help" Foreground="#CCCCCC" Background="Transparent" Padding="10,5">
-                        <MenuItem Header="About" Click="About_Click" Foreground="#CCCCCC" Background="Transparent" Padding="10,5"/>
+                    <MenuItem Header="Help" Padding="10,5">
+                        <MenuItem Header="About" Click="About_Click" Padding="10,5"/>
                     </MenuItem>
                 </Menu>
 
@@ -133,7 +153,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="48"/>     <!-- Docker Bar -->
                 <ColumnDefinition Width="*"/>      <!-- Main Area -->
-                <ColumnDefinition Width="300"/>    <!-- Sidebar -->
+                <ColumnDefinition Width="390"/>    <!-- Sidebar (1.3x wider) -->
             </Grid.ColumnDefinitions>
 
             <!-- Docker Bar -->
@@ -231,10 +251,15 @@
             <Border Grid.Column="2" 
                    Background="#252526" 
                    BorderBrush="#3C3C3C" 
-                   BorderThickness="1,0,0,0"
-                   Padding="15">
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel x:Name="SidebarContent">
+                   BorderThickness="1,0,0,0">
+                <Grid Margin="15">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>  <!-- Header area -->
+                        <RowDefinition Height="*"/>     <!-- Content area - fills remaining space -->
+                    </Grid.RowDefinitions>
+                    
+                    <!-- This will be replaced by code, keeping as placeholder -->
+                    <StackPanel x:Name="SidebarContent" Grid.Row="0" Grid.RowSpan="2">
                         <TextBlock Text="SIDEBAR" 
                                   FontSize="14" 
                                   FontWeight="SemiBold"
@@ -256,7 +281,7 @@
                                       TextWrapping="Wrap"/>
                         </Border>
                     </StackPanel>
-                </ScrollViewer>
+                </Grid>
             </Border>
         </Grid>
     </Grid>

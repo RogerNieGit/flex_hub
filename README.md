@@ -11,7 +11,7 @@ A modern Windows desktop application built with **WPF (Windows Presentation Foun
 - **Docker Bar** (48px): Icon-based navigation with blue theme
 - **Dynamic Title Header** (60px): Context-aware header with icon, title, and subtitle
 - **Main Content Area**: Flexible workspace with frame-based navigation
-- **Sidebar** (300px): Context-sensitive information panel
+- **Sidebar** (390px): Context-sensitive information panel with smart file tree view
 
 ### **Web Analyzer** 🌐
 - **Modern Web Browser**: Microsoft Edge WebView2 (Chromium-based)
@@ -51,6 +51,15 @@ A modern Windows desktop application built with **WPF (Windows Presentation Foun
 ### **File & Folder Management**
 - Open and analyze files with detailed metadata
 - Browse folders with file/subfolder statistics
+- **Smart File Tree View** (Web Analyzer mode):
+  - Hierarchical collapsible folder structure
+  - Filtered file display (.txt, .md, .html, .htm)
+  - Files listed first, then subfolders (alphabetically sorted)
+  - Folders closed by default, expandable on click
+  - Auto-expands parent folders when file is selected
+  - Silent file selection (stores path for future features)
+  - Fills entire sidebar area for comfortable browsing
+  - Clean VS Code-like appearance with icons (📁 📂 📄)
 - Dynamic sidebar updates with contextual information
 
 ### **Additional Features**
@@ -136,6 +145,51 @@ flex_hub/
 - **Edit**: Settings
 - **View**: Zoom In, Zoom Out, Reset Zoom
 - **Help**: About
+
+## 📁 File Tree View (Web Analyzer)
+
+### Using the File Tree
+1. Click **Web Analyzer** (🌐) in the docker bar
+2. Go to **File → Open Folder**
+3. Select a folder containing .txt, .md, or .html files
+4. Tree view appears in the sidebar (390px wide)
+
+### Features
+- **Hierarchical Structure**: Files organized by folder hierarchy
+- **Smart Ordering**: Files listed first, then subfolders (both alphabetically sorted)
+- **Collapsible Folders**: 
+  - All folders start closed (📂)
+  - Click folder to expand/collapse
+  - Shows full relative path for subfolders
+- **File Selection**:
+  - Click any file to select it (highlighted in blue)
+  - File path stored in memory for future features
+  - Header updates to show selected file
+  - No popup messages - silent selection
+- **Auto-Expansion**: When file is selected, its parent folder path opens automatically
+- **File Filtering**: Only shows .txt, .md, .html, and .htm files
+- **Full Sidebar**: Tree view expands to fill entire sidebar height
+
+### Example Tree Structure
+```
+📁 MyWebsite
+  📄 README.md          ← Files first
+  📄 index.html
+  📂 css                ← Then folders
+    📄 styles.md
+  📂 docs / guides      ← Subfolder path shown
+    📄 tutorial.txt
+```
+
+### Stored Information
+When you select a file, the application remembers:
+- **Full file path** - Complete location on disk
+- **File name** - Just the filename
+- These will be used in future features for:
+  - Loading file content
+  - File comparison
+  - Recent files list
+  - File operations (copy, move, rename)
 
 ## 🌐 Web Analyzer Guide
 
@@ -244,19 +298,25 @@ The application uses a consistent dark theme:
 - FlexDesk-style layout with docker bar and sidebar
 - Web Analyzer with WebView2 browser
 - HTML source viewer with search functionality
+- **Smart File Tree View** with collapsible folders
 - File and folder browsing with metadata
 - Custom window controls
 - Dynamic header updates
-- Context-aware sidebar
+- Context-aware sidebar (390px wide)
 - Menu system with keyboard shortcuts
+- AI-powered analysis with Fuelix AI
+- Export functionality (TXT, MD, JSON)
 
 ### 🔜 Planned for Future Versions
+- **File Content Loading**: Load selected files from tree view
+- **File Operations**: Copy, move, rename, delete files
+- **Recent Files List**: Quick access to recently opened files
+- **File Comparison**: Compare two HTML files side-by-side
 - Quick Book note-taking feature
 - Analytics dashboard
 - Profile management
 - Advanced settings dialog
 - Database write operations
-- Export functionality (CSV, PDF)
 - Plugin system
 - Custom themes
 

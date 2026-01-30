@@ -434,96 +434,42 @@ public partial class FlexHubWindow : Window
         };
         SidebarContent.Children.Add(header);
 
-        // ScrollViewer for file list
-        var scrollViewer = new System.Windows.Controls.ScrollViewer
+        // TreeView for hierarchical folder structure - fills entire sidebar
+        var treeView = new System.Windows.Controls.TreeView
         {
-            VerticalScrollBarVisibility = System.Windows.Controls.ScrollBarVisibility.Auto,
-            MaxHeight = 600
+            Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.Transparent),
+            BorderThickness = new Thickness(0),
+            Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#CCCCCC"))
         };
-
-        var fileStack = new System.Windows.Controls.StackPanel();
 
         try
         {
-            // Get all files matching the extensions
+            // Get filtered files (.txt, .md, .html)
             var dirInfo = new System.IO.DirectoryInfo(folderPath);
+            var allowedExtensions = new[] { ".txt", ".md", ".html", ".htm" };
             var files = dirInfo.GetFiles("*.*", System.IO.SearchOption.AllDirectories)
-                .Where(f => extensions.Any(ext => f.Extension.Equals(ext, StringComparison.OrdinalIgnoreCase)))
-                .OrderBy(f => f.FullName)
+                .Where(f => allowedExtensions.Contains(f.Extension.ToLower()))
                 .ToArray();
 
             if (files.Length == 0)
             {
                 var noFilesText = new System.Windows.Controls.TextBlock
                 {
-                    Text = "No HTML files found in this folder.",
+                    Text = "No .txt, .md, or .html files found in this folder.",
                     FontSize = 12,
                     Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#888888")),
                     Margin = new Thickness(0, 10, 0, 0),
                     FontStyle = FontStyles.Italic
                 };
-                fileStack.Children.Add(noFilesText);
+                SidebarContent.Children.Add(noFilesText);
             }
             else
             {
-                foreach (var file in files)
-                {
-                    var isSelected = selectedFile != null && file.FullName.Equals(selectedFile, StringComparison.OrdinalIgnoreCase);
-                    
-                    var fileButton = new System.Windows.Controls.Button
-                    {
-                        Content = "📄 " + file.Name,
-                        Tag = file.FullName,
-                        HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
-                        HorizontalContentAlignment = System.Windows.HorizontalAlignment.Left,
-                        Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(isSelected ? "#2D2D30" : "Transparent")),
-                        Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(isSelected ? "#4A9EFF" : "#CCCCCC")),
-                        BorderThickness = new Thickness(0),
-                        Padding = new Thickness(5, 8, 5, 8),
-                        FontSize = 12,
-                        Cursor = System.Windows.Input.Cursors.Hand,
-                        Margin = new Thickness(0, 2, 0, 2)
-                    };
+                // Build tree structure and add directly to TreeView
+                BuildTreeStructure(folderPath, files, selectedFile, treeView);
 
-                    fileButton.Click += (s, e) =>
-                    {
-                        var btn = s as System.Windows.Controls.Button;
-                        if (btn?.Tag is string filePath)
-                        {
-                            LoadHtmlFileInWebAnalyzer(filePath);
-                        }
-                    };
-
-                    // Hover effect
-                    fileButton.MouseEnter += (s, e) =>
-                    {
-                        if (fileButton.Background is System.Windows.Media.SolidColorBrush brush && brush.Color == System.Windows.Media.Colors.Transparent)
-                        {
-                            fileButton.Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#3C3C3C"));
-                        }
-                    };
-
-                    fileButton.MouseLeave += (s, e) =>
-                    {
-                        if (!isSelected)
-                        {
-                            fileButton.Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.Transparent);
-                        }
-                    };
-
-                    fileStack.Children.Add(fileButton);
-                }
-
-                // Add file count info
-                var infoText = new System.Windows.Controls.TextBlock
-                {
-                    Text = $"\n{files.Length} HTML file(s) found",
-                    FontSize = 11,
-                    Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#888888")),
-                    Margin = new Thickness(0, 10, 0, 0),
-                    FontStyle = FontStyles.Italic
-                };
-                fileStack.Children.Add(infoText);
+                // TreeView fills entire sidebar
+                SidebarContent.Children.Add(treeView);
             }
         }
         catch (Exception ex)
@@ -536,39 +482,159 @@ public partial class FlexHubWindow : Window
                 Margin = new Thickness(0, 10, 0, 0),
                 TextWrapping = TextWrapping.Wrap
             };
-            fileStack.Children.Add(errorText);
+            SidebarContent.Children.Add(errorText);
+        }
+    }
+
+    private void BuildTreeStructure(string rootPath, System.IO.FileInfo[] files, string? selectedFile, System.Windows.Controls.TreeView treeView)
+    {
+        var folderMap = new System.Collections.Generic.Dictionary<string, System.Windows.Controls.TreeViewItem>();
+        var folderFilesMap = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<System.Windows.Controls.TreeViewItem>>();
+        var folderSubfoldersMap = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<System.Windows.Controls.TreeViewItem>>();
+
+        // Group files by their directory and create folder structure
+        foreach (var file in files.OrderBy(f => f.Name))
+        {
+            var fileDir = file.DirectoryName ?? "";
+            var relativePath = fileDir.Replace(rootPath, "").TrimStart('\\', '/');
+            var pathParts = string.IsNullOrEmpty(relativePath) 
+                ? new string[0] 
+                : relativePath.Split(new[] { '\\', '/' }, StringSplitOptions.RemoveEmptyEntries);
+
+            string currentPath = rootPath;
+
+            // Create folder hierarchy
+            for (int i = 0; i < pathParts.Length; i++)
+            {
+                var parentPath = currentPath;
+                currentPath = System.IO.Path.Combine(currentPath, pathParts[i]);
+                
+                if (!folderMap.ContainsKey(currentPath))
+                {
+                    var folderItem = new System.Windows.Controls.TreeViewItem
+                    {
+                        Header = $"📂 {pathParts[i]}",
+                        IsExpanded = false,
+                        Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#CCCCCC")),
+                        Tag = currentPath // Store path for sorting
+                    };
+                    
+                    folderMap[currentPath] = folderItem;
+                    
+                    // Add to parent's subfolder list
+                    if (!folderSubfoldersMap.ContainsKey(parentPath))
+                    {
+                        folderSubfoldersMap[parentPath] = new System.Collections.Generic.List<System.Windows.Controls.TreeViewItem>();
+                    }
+                    folderSubfoldersMap[parentPath].Add(folderItem);
+                }
+            }
+
+            // Create file item
+            var isSelected = selectedFile != null && file.FullName.Equals(selectedFile, StringComparison.OrdinalIgnoreCase);
+            var fileItem = new System.Windows.Controls.TreeViewItem
+            {
+                Header = $"📄 {file.Name}",
+                Tag = file.FullName,
+                Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(isSelected ? "#4A9EFF" : "#CCCCCC")),
+                Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(isSelected ? "#2D2D30" : "Transparent"))
+            };
+
+            fileItem.Selected += (s, e) =>
+            {
+                e.Handled = true;
+                if (fileItem.Tag is string filePath)
+                {
+                    LoadHtmlFileInWebAnalyzer(filePath);
+                }
+            };
+
+            // Add file to its directory's file list
+            if (!folderFilesMap.ContainsKey(fileDir))
+            {
+                folderFilesMap[fileDir] = new System.Collections.Generic.List<System.Windows.Controls.TreeViewItem>();
+            }
+            folderFilesMap[fileDir].Add(fileItem);
+
+            // If this file is selected, expand its parent folders
+            if (isSelected)
+            {
+                ExpandParentFolders(fileDir, rootPath, folderMap);
+            }
         }
 
-        scrollViewer.Content = fileStack;
-        SidebarContent.Children.Add(scrollViewer);
+        // Build tree: add files first, then subfolders to each folder
+        void AddItemsToFolder(string folderPath, System.Windows.Controls.ItemCollection items)
+        {
+            // First add all files in this folder (already sorted by name)
+            if (folderFilesMap.ContainsKey(folderPath))
+            {
+                foreach (var fileItem in folderFilesMap[folderPath].OrderBy(f => ((string)f.Header).Substring(2))) // Remove emoji for sorting
+                {
+                    items.Add(fileItem);
+                }
+            }
+
+            // Then add all subfolders (sorted by name)
+            if (folderSubfoldersMap.ContainsKey(folderPath))
+            {
+                foreach (var subfolder in folderSubfoldersMap[folderPath].OrderBy(f => ((string)f.Header).Substring(2)))
+                {
+                    items.Add(subfolder);
+                    // Recursively add items to this subfolder
+                    if (subfolder.Tag is string subfolderPath)
+                    {
+                        AddItemsToFolder(subfolderPath, subfolder.Items);
+                    }
+                }
+            }
+        }
+
+        // Start with root folder
+        AddItemsToFolder(rootPath, treeView.Items);
     }
+
+    private void ExpandParentFolders(string fileDir, string rootPath, System.Collections.Generic.Dictionary<string, System.Windows.Controls.TreeViewItem> folderMap)
+    {
+        var relativePath = fileDir.Replace(rootPath, "").TrimStart('\\', '/');
+        if (string.IsNullOrEmpty(relativePath)) return;
+
+        var pathParts = relativePath.Split(new[] { '\\', '/' }, StringSplitOptions.RemoveEmptyEntries);
+        string currentPath = rootPath;
+
+        foreach (var part in pathParts)
+        {
+            currentPath = System.IO.Path.Combine(currentPath, part);
+            if (folderMap.ContainsKey(currentPath))
+            {
+                folderMap[currentPath].IsExpanded = true;
+            }
+        }
+    }
+
+    // Store currently selected file info for future use
+    private string? _selectedFilePath = null;
+    private string? _selectedFileName = null;
 
     private void LoadHtmlFileInWebAnalyzer(string filePath)
     {
         try
         {
-            // Update the header
-            string fileName = System.IO.Path.GetFileName(filePath);
-            UpdateHeader("📄", fileName, filePath);
+            // Store selected file info (will be used in future features)
+            _selectedFilePath = filePath;
+            _selectedFileName = System.IO.Path.GetFileName(filePath);
 
-            // Get the WebAnalyzerPage and navigate to the file
-            if (ContentFrame.Content is WebAnalyzerPage webAnalyzer)
-            {
-                // Load the HTML file as a local file URI
-                var fileUri = new Uri(filePath);
-                // We'll need to expose a method in WebAnalyzerPage to load a file
-                // For now, just show a message
-                System.Windows.MessageBox.Show(
-                    $"File selected: {fileName}\n\nTo view this file, WebAnalyzerPage needs a LoadFile method implemented.",
-                    "File Selected",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
-            }
+            // Update the header to show selected file
+            UpdateHeader("📄", _selectedFileName, _selectedFilePath);
+
+            // No message box - just silently remember the selection
+            // Future features will use _selectedFilePath and _selectedFileName
         }
         catch (Exception ex)
         {
+            // Only show error if something went wrong
             System.Windows.MessageBox.Show(
-                $"Error loading file: {ex.Message}",
+                $"Error selecting file: {ex.Message}",
                 "Error",
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
