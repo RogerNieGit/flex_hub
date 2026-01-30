@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 
@@ -25,7 +26,14 @@ public partial class FlexHubWindow : Window
         }
         else
         {
-            DragMove();
+            try
+            {
+                DragMove();
+            }
+            catch (InvalidOperationException)
+            {
+                // Ignore - happens when window is maximized
+            }
         }
     }
 
@@ -62,17 +70,28 @@ public partial class FlexHubWindow : Window
         var dialog = new Microsoft.Win32.OpenFileDialog
         {
             Title = "Open File",
-            Filter = "All Files (*.*)|*.*|Text Files (*.txt)|*.txt|C# Files (*.cs)|*.cs|JSON Files (*.json)|*.json|XML Files (*.xml)|*.xml"
+            Filter = "HTML Files (*.html;*.htm)|*.html;*.htm|All Files (*.*)|*.*|Text Files (*.txt)|*.txt|C# Files (*.cs)|*.cs|JSON Files (*.json)|*.json|XML Files (*.xml)|*.xml"
         };
 
         if (dialog.ShowDialog() == true)
         {
             string fileName = System.IO.Path.GetFileName(dialog.FileName);
-            string fileSize = new System.IO.FileInfo(dialog.FileName).Length.ToString("N0");
             string fileExt = System.IO.Path.GetExtension(dialog.FileName);
             
-            UpdateHeader("📄", fileName, dialog.FileName);
-            UpdateSidebarForFile(dialog.FileName, fileSize, fileExt);
+            // Check if we're in Web Analyzer mode
+            if (ContentFrame.Content is WebAnalyzerPage)
+            {
+                // For Web Analyzer, show tree view of parent folder
+                string folderPath = System.IO.Path.GetDirectoryName(dialog.FileName) ?? "";
+                BuildFileTreeView(folderPath, new[] { ".html", ".htm" }, dialog.FileName);
+            }
+            else
+            {
+                // For other modes, show file details
+                string fileSize = new System.IO.FileInfo(dialog.FileName).Length.ToString("N0");
+                UpdateHeader("📄", fileName, dialog.FileName);
+                UpdateSidebarForFile(dialog.FileName, fileSize, fileExt);
+            }
         }
     }
 
@@ -86,13 +105,23 @@ public partial class FlexHubWindow : Window
 
         if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
         {
-            string folderName = System.IO.Path.GetFileName(dialog.SelectedPath);
-            var dirInfo = new System.IO.DirectoryInfo(dialog.SelectedPath);
-            int fileCount = dirInfo.GetFiles("*", System.IO.SearchOption.AllDirectories).Length;
-            int folderCount = dirInfo.GetDirectories("*", System.IO.SearchOption.AllDirectories).Length;
-            
-            UpdateHeader("📁", folderName, dialog.SelectedPath);
-            UpdateSidebarForFolder(dialog.SelectedPath, fileCount, folderCount);
+            // Check if we're in Web Analyzer mode
+            if (ContentFrame.Content is WebAnalyzerPage)
+            {
+                // For Web Analyzer, show tree view of HTML files
+                BuildFileTreeView(dialog.SelectedPath, new[] { ".html", ".htm" }, null);
+            }
+            else
+            {
+                // For other modes, show folder details
+                string folderName = System.IO.Path.GetFileName(dialog.SelectedPath);
+                var dirInfo = new System.IO.DirectoryInfo(dialog.SelectedPath);
+                int fileCount = dirInfo.GetFiles("*", System.IO.SearchOption.AllDirectories).Length;
+                int folderCount = dirInfo.GetDirectories("*", System.IO.SearchOption.AllDirectories).Length;
+                
+                UpdateHeader("📁", folderName, dialog.SelectedPath);
+                UpdateSidebarForFolder(dialog.SelectedPath, fileCount, folderCount);
+            }
         }
     }
 
@@ -149,7 +178,42 @@ public partial class FlexHubWindow : Window
     {
         UpdateHeader("🌐", "Web Analyzer", "Browse and analyze web pages");
         ContentFrame.Navigate(new WebAnalyzerPage());
-        ResetSidebar();
+        UpdateWebAnalyzerSidebar();
+    }
+
+    private void UpdateWebAnalyzerSidebar()
+    {
+        // Update sidebar for Web Analyzer
+        SidebarContent.Children.Clear();
+        
+        var header = new System.Windows.Controls.TextBlock
+        {
+            Text = "FILES",
+            FontSize = 14,
+            FontWeight = FontWeights.SemiBold,
+            Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#888888")),
+            Margin = new Thickness(0, 0, 0, 15)
+        };
+        SidebarContent.Children.Add(header);
+
+        var infoBorder = new System.Windows.Controls.Border
+        {
+            Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#1E1E1E")),
+            CornerRadius = new CornerRadius(4),
+            Padding = new Thickness(10),
+            Margin = new Thickness(0, 0, 0, 10)
+        };
+
+        var infoText = new System.Windows.Controls.TextBlock
+        {
+            Text = "Use File → Open File or Open Folder to load HTML files and view them in a tree structure here.",
+            FontSize = 12,
+            Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#888888")),
+            TextWrapping = TextWrapping.Wrap
+        };
+
+        infoBorder.Child = infoText;
+        SidebarContent.Children.Add(infoBorder);
     }
 
     private void QuickBook_Click(object sender, RoutedEventArgs e)
@@ -349,6 +413,166 @@ public partial class FlexHubWindow : Window
 
         infoBorder.Child = infoText;
         SidebarContent.Children.Add(infoBorder);
+    }
+
+    private void BuildFileTreeView(string folderPath, string[] extensions, string? selectedFile)
+    {
+        SidebarContent.Children.Clear();
+        
+        // Header with folder name
+        var folderName = System.IO.Path.GetFileName(folderPath);
+        if (string.IsNullOrEmpty(folderName)) folderName = folderPath;
+        
+        var header = new System.Windows.Controls.TextBlock
+        {
+            Text = "📁 " + folderName,
+            FontSize = 13,
+            FontWeight = FontWeights.SemiBold,
+            Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#4A9EFF")),
+            Margin = new Thickness(0, 0, 0, 10),
+            TextWrapping = TextWrapping.Wrap
+        };
+        SidebarContent.Children.Add(header);
+
+        // ScrollViewer for file list
+        var scrollViewer = new System.Windows.Controls.ScrollViewer
+        {
+            VerticalScrollBarVisibility = System.Windows.Controls.ScrollBarVisibility.Auto,
+            MaxHeight = 600
+        };
+
+        var fileStack = new System.Windows.Controls.StackPanel();
+
+        try
+        {
+            // Get all files matching the extensions
+            var dirInfo = new System.IO.DirectoryInfo(folderPath);
+            var files = dirInfo.GetFiles("*.*", System.IO.SearchOption.AllDirectories)
+                .Where(f => extensions.Any(ext => f.Extension.Equals(ext, StringComparison.OrdinalIgnoreCase)))
+                .OrderBy(f => f.FullName)
+                .ToArray();
+
+            if (files.Length == 0)
+            {
+                var noFilesText = new System.Windows.Controls.TextBlock
+                {
+                    Text = "No HTML files found in this folder.",
+                    FontSize = 12,
+                    Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#888888")),
+                    Margin = new Thickness(0, 10, 0, 0),
+                    FontStyle = FontStyles.Italic
+                };
+                fileStack.Children.Add(noFilesText);
+            }
+            else
+            {
+                foreach (var file in files)
+                {
+                    var isSelected = selectedFile != null && file.FullName.Equals(selectedFile, StringComparison.OrdinalIgnoreCase);
+                    
+                    var fileButton = new System.Windows.Controls.Button
+                    {
+                        Content = "📄 " + file.Name,
+                        Tag = file.FullName,
+                        HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
+                        HorizontalContentAlignment = System.Windows.HorizontalAlignment.Left,
+                        Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(isSelected ? "#2D2D30" : "Transparent")),
+                        Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(isSelected ? "#4A9EFF" : "#CCCCCC")),
+                        BorderThickness = new Thickness(0),
+                        Padding = new Thickness(5, 8, 5, 8),
+                        FontSize = 12,
+                        Cursor = System.Windows.Input.Cursors.Hand,
+                        Margin = new Thickness(0, 2, 0, 2)
+                    };
+
+                    fileButton.Click += (s, e) =>
+                    {
+                        var btn = s as System.Windows.Controls.Button;
+                        if (btn?.Tag is string filePath)
+                        {
+                            LoadHtmlFileInWebAnalyzer(filePath);
+                        }
+                    };
+
+                    // Hover effect
+                    fileButton.MouseEnter += (s, e) =>
+                    {
+                        if (fileButton.Background is System.Windows.Media.SolidColorBrush brush && brush.Color == System.Windows.Media.Colors.Transparent)
+                        {
+                            fileButton.Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#3C3C3C"));
+                        }
+                    };
+
+                    fileButton.MouseLeave += (s, e) =>
+                    {
+                        if (!isSelected)
+                        {
+                            fileButton.Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.Transparent);
+                        }
+                    };
+
+                    fileStack.Children.Add(fileButton);
+                }
+
+                // Add file count info
+                var infoText = new System.Windows.Controls.TextBlock
+                {
+                    Text = $"\n{files.Length} HTML file(s) found",
+                    FontSize = 11,
+                    Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#888888")),
+                    Margin = new Thickness(0, 10, 0, 0),
+                    FontStyle = FontStyles.Italic
+                };
+                fileStack.Children.Add(infoText);
+            }
+        }
+        catch (Exception ex)
+        {
+            var errorText = new System.Windows.Controls.TextBlock
+            {
+                Text = $"Error loading files: {ex.Message}",
+                FontSize = 12,
+                Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FF6B6B")),
+                Margin = new Thickness(0, 10, 0, 0),
+                TextWrapping = TextWrapping.Wrap
+            };
+            fileStack.Children.Add(errorText);
+        }
+
+        scrollViewer.Content = fileStack;
+        SidebarContent.Children.Add(scrollViewer);
+    }
+
+    private void LoadHtmlFileInWebAnalyzer(string filePath)
+    {
+        try
+        {
+            // Update the header
+            string fileName = System.IO.Path.GetFileName(filePath);
+            UpdateHeader("📄", fileName, filePath);
+
+            // Get the WebAnalyzerPage and navigate to the file
+            if (ContentFrame.Content is WebAnalyzerPage webAnalyzer)
+            {
+                // Load the HTML file as a local file URI
+                var fileUri = new Uri(filePath);
+                // We'll need to expose a method in WebAnalyzerPage to load a file
+                // For now, just show a message
+                System.Windows.MessageBox.Show(
+                    $"File selected: {fileName}\n\nTo view this file, WebAnalyzerPage needs a LoadFile method implemented.",
+                    "File Selected",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Windows.MessageBox.Show(
+                $"Error loading file: {ex.Message}",
+                "Error",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
     }
 
     #endregion

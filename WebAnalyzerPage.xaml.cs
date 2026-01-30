@@ -324,6 +324,55 @@ public partial class WebAnalyzerPage : Page
 
     #endregion
 
+    #region Save Source
+
+    private void SaveSource_Click(object sender, RoutedEventArgs e)
+    {
+        var htmlContent = SourceTextBox.Text;
+        
+        if (string.IsNullOrEmpty(htmlContent))
+        {
+            System.Windows.MessageBox.Show(
+                "No HTML content available to save. Please navigate to a webpage first.",
+                "No Content",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+            return;
+        }
+
+        var dialog = new Microsoft.Win32.SaveFileDialog
+        {
+            Title = "Save HTML Source",
+            Filter = "HTML File (*.html)|*.html|Text File (*.txt)|*.txt|All Files (*.*)|*.*",
+            DefaultExt = ".html",
+            FileName = $"source_{DateTime.Now:yyyyMMdd_HHmmss}.html"
+        };
+
+        if (dialog.ShowDialog() == true)
+        {
+            try
+            {
+                File.WriteAllText(dialog.FileName, htmlContent);
+                
+                System.Windows.MessageBox.Show(
+                    $"HTML source saved successfully to:\n{dialog.FileName}",
+                    "Save Successful",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(
+                    $"Failed to save file: {ex.Message}",
+                    "Save Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+    }
+
+    #endregion
+
     #region AI Analysis
 
     private void AiSettings_Click(object sender, RoutedEventArgs e)

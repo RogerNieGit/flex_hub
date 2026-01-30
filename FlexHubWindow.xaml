@@ -63,35 +63,39 @@
         <Border Grid.Row="0" 
                 Background="#3C3C3C" 
                 BorderBrush="#2B2B2B" 
-                BorderThickness="0,0,0,1"
-                MouseLeftButtonDown="MenuBar_MouseLeftButtonDown">
+                BorderThickness="0,0,0,1">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
+                <!-- Draggable Area (behind menu) -->
+                <Border Grid.Column="0" 
+                        Background="Transparent"
+                        MouseLeftButtonDown="MenuBar_MouseLeftButtonDown"/>
+
                 <!-- Menu Items -->
                 <Menu Grid.Column="0" 
                       Background="Transparent" 
                       Foreground="#CCCCCC"
                       VerticalAlignment="Center">
-                    <MenuItem Header="File" Style="{StaticResource MenuItemStyle}">
-                        <MenuItem Header="Open File" Click="OpenFile_Click"/>
-                        <MenuItem Header="Open Folder" Click="OpenFolder_Click"/>
+                    <MenuItem Header="File" Foreground="#CCCCCC" Background="Transparent" Padding="10,5">
+                        <MenuItem Header="Open File" Click="OpenFile_Click" Foreground="#CCCCCC" Background="Transparent" Padding="10,5"/>
+                        <MenuItem Header="Open Folder" Click="OpenFolder_Click" Foreground="#CCCCCC" Background="Transparent" Padding="10,5"/>
                         <Separator/>
-                        <MenuItem Header="Exit" Click="Exit_Click"/>
+                        <MenuItem Header="Exit" Click="Exit_Click" Foreground="#CCCCCC" Background="Transparent" Padding="10,5"/>
                     </MenuItem>
-                    <MenuItem Header="Edit" Style="{StaticResource MenuItemStyle}">
-                        <MenuItem Header="Settings" Click="Settings_Click"/>
+                    <MenuItem Header="Edit" Foreground="#CCCCCC" Background="Transparent" Padding="10,5">
+                        <MenuItem Header="Settings" Click="Settings_Click" Foreground="#CCCCCC" Background="Transparent" Padding="10,5"/>
                     </MenuItem>
-                    <MenuItem Header="View" Style="{StaticResource MenuItemStyle}">
-                        <MenuItem Header="Zoom In" Click="ZoomIn_Click"/>
-                        <MenuItem Header="Zoom Out" Click="ZoomOut_Click"/>
-                        <MenuItem Header="Reset Zoom" Click="ResetZoom_Click"/>
+                    <MenuItem Header="View" Foreground="#CCCCCC" Background="Transparent" Padding="10,5">
+                        <MenuItem Header="Zoom In" Click="ZoomIn_Click" Foreground="#CCCCCC" Background="Transparent" Padding="10,5"/>
+                        <MenuItem Header="Zoom Out" Click="ZoomOut_Click" Foreground="#CCCCCC" Background="Transparent" Padding="10,5"/>
+                        <MenuItem Header="Reset Zoom" Click="ResetZoom_Click" Foreground="#CCCCCC" Background="Transparent" Padding="10,5"/>
                     </MenuItem>
-                    <MenuItem Header="Help" Style="{StaticResource MenuItemStyle}">
-                        <MenuItem Header="About" Click="About_Click"/>
+                    <MenuItem Header="Help" Foreground="#CCCCCC" Background="Transparent" Padding="10,5">
+                        <MenuItem Header="About" Click="About_Click" Foreground="#CCCCCC" Background="Transparent" Padding="10,5"/>
                     </MenuItem>
                 </Menu>
 
