@@ -4,7 +4,7 @@
 
 A modern Windows desktop application built with **WPF (Windows Presentation Foundation)** and **.NET 8.0**, featuring a FlexDesk-inspired layout and powerful web analysis tools.
 
-## 🚀 Features
+## 🚀 Features done
 
 ### **FlexDesk-Style Interface**
 - **Menu Bar** (35px): File, Edit, View, Help menus with full functionality
