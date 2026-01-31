@@ -280,6 +280,7 @@
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
                             <TextBlock Grid.Column="0"
@@ -361,7 +362,18 @@
                                       Foreground="#888888"
                                       FontSize="11"/>
 
-                            <Button Grid.Column="5"
+                            <!-- Word Wrap Checkbox -->
+                            <CheckBox x:Name="WordWrapCheckBox"
+                                     Grid.Column="5"
+                                     Content="Word Wrap"
+                                     Margin="15,0,0,0"
+                                     Foreground="#CCCCCC"
+                                     VerticalAlignment="Center"
+                                     IsChecked="True"
+                                     Checked="WordWrap_Changed"
+                                     Unchecked="WordWrap_Changed"/>
+
+                            <Button Grid.Column="6"
                                    Content="💾 Save to File"
                                    Width="110"
                                    Height="30"

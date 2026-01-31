@@ -586,6 +586,20 @@ public partial class WebAnalyzerPage : Page
 
     #endregion
 
+    #region Word Wrap
+
+    private void WordWrap_Changed(object sender, RoutedEventArgs e)
+    {
+        if (SourceTextBox != null)
+        {
+            SourceTextBox.TextWrapping = WordWrapCheckBox.IsChecked == true 
+                ? TextWrapping.Wrap 
+                : TextWrapping.NoWrap;
+        }
+    }
+
+    #endregion
+
     #region Save Source
 
     private void SaveSource_Click(object sender, RoutedEventArgs e)
