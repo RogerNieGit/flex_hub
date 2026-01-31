@@ -1,0 +1,46 @@
+@page "/database"
+
+<PageTitle>Database Manager - FlexHub</PageTitle>
+
+<div class="database-container">
+    <div class="database-header">
+        <h2>🗄️ Database Manager</h2>
+        <p>Manage your SQLite databases</p>
+    </div>
+    
+    <div class="database-toolbar">
+        <button class="toolbar-button">
+            <span>📁</span> Open Database
+        </button>
+        <button class="toolbar-button">
+            <span>➕</span> New Database
+        </button>
+        <button class="toolbar-button">
+            <span>🔄</span> Refresh
+        </button>
+    </div>
+    
+    <div class="database-content">
+        <div class="tables-panel">
+            <h3>Tables</h3>
+            <div class="empty-state-small">
+                <p>No database loaded</p>
+            </div>
+        </div>
+        
+        <div class="query-panel">
+            <h3>Query Editor</h3>
+            <textarea class="query-editor" placeholder="Enter SQL query..."></textarea>
+            <button class="execute-button">
+                <span>▶️</span> Execute
+            </button>
+        </div>
+        
+        <div class="results-panel">
+            <h3>Results</h3>
+            <div class="empty-state-small">
+                <p>Execute a query to see results</p>
+            </div>
+        </div>
+    </div>
+</div>

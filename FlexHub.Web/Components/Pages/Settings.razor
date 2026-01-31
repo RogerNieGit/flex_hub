@@ -1,0 +1,59 @@
+@page "/settings"
+
+<PageTitle>Settings - FlexHub</PageTitle>
+
+<div class="settings-container">
+    <div class="settings-header">
+        <h2>⚙️ Settings</h2>
+        <p>Configure your FlexHub experience</p>
+    </div>
+    
+    <div class="settings-content">
+        <div class="settings-section">
+            <h3>🎨 Appearance</h3>
+            <div class="setting-item">
+                <label>Theme</label>
+                <select class="setting-select">
+                    <option value="dark" selected>Dark</option>
+                    <option value="light">Light</option>
+                </select>
+            </div>
+            <div class="setting-item">
+                <label>Font Size</label>
+                <select class="setting-select">
+                    <option value="small">Small</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="large">Large</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="settings-section">
+            <h3>🤖 AI Settings</h3>
+            <div class="setting-item">
+                <label>API Key</label>
+                <input type="password" class="setting-input" placeholder="Enter API key..." />
+            </div>
+            <div class="setting-item">
+                <label>Model</label>
+                <select class="setting-select">
+                    <option value="gpt-4">GPT-4</option>
+                    <option value="gpt-3.5">GPT-3.5 Turbo</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="settings-section">
+            <h3>📁 File Settings</h3>
+            <div class="setting-item">
+                <label>Default Directory</label>
+                <input type="text" class="setting-input" placeholder="C:\Users\..." />
+            </div>
+        </div>
+        
+        <div class="settings-actions">
+            <button class="save-button">💾 Save Settings</button>
+            <button class="reset-button">🔄 Reset to Defaults</button>
+        </div>
+    </div>
+</div>

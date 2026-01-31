@@ -309,6 +309,279 @@ Each tool follows this pattern with variations:
 
 ---
 
+## Quick Book Implementation Details
+
+Quick Book is a text/markdown editor with file tree navigation. It follows the standard FlexDesk layout pattern with specific behaviors for default folder loading.
+
+### Layout Structure
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ MenuBar (35px)                                              │
+├──────┬────────────────────────────────────────┬─────────────┤
+│      │ Top Header (50px)                      │  Sidebar    │
+│Docker│ [📝 Quick Book]              [⚙️]      │  (300px)    │
+│ Bar  ├────────────────────────────────────────┤             │
+│(48px)│ Title Header (60px)                    │  ┌─────────┐│
+│      │ filename.md                            │  │Files 🔄➕││
+│      │ C:\path\to\file                        │  ├─────────┤│
+│      ├────────────────────────────────────────┤  │TreeView ││
+│      │                                        │  │  📁 dir ││
+│      │ Editor Content Area                    │  │  📄 file││
+│      │ (Textarea or Markdown Preview)         │  │  📄 file││
+│      │                                        │  └─────────┘│
+└──────┴────────────────────────────────────────┴─────────────┘
+```
+
+### 1. Top Header
+
+**Location**: `QuickBookView.vue` → `.top-header`
+
+**Dimensions**:
+- **Height**: `~50px` (padding: 12px 20px)
+- **Background**: `#252525`
+- **Border**: `1px solid #333` (bottom)
+
+**Layout**: Flexbox with `justify-content: space-between`
+
+**Components**:
+```
+┌──────────────────────────────────────────────────────────────┐
+│ [📝 Icon] [Quick Book Title]                      [⚙️ Btn] │
+│ ← top-header-left                                 ← right  │
+└──────────────────────────────────────────────────────────────┘
+```
+
+**Left Side** (`.top-header-left`):
+- Icon: `📝` (font-size: 24px)
+- Title: "Quick Book" (font-size: 16px, font-weight: 600, color: #ffffff)
+- Gap: `12px`
+
+**Right Side**:
+- Settings Button (`.settings-btn`):
+  - Content: `⚙️`
+  - Background: `#3a3a3a`
+  - Border: none
+  - Padding: `8px 12px`
+  - Border-radius: `4px`
+  - Hover: Background `#4a9eff`, transform `scale(1.05)`
+  - Click: Opens Settings Modal
+
+**CSS**:
+```css
+.top-header {
+  background-color: #252525;
+  border-bottom: 1px solid #333;
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+```
+
+### 2. Settings Modal
+
+**Trigger**: Click on `⚙️` button in top header
+
+**Modal Structure**:
+```
+┌────────────────────────────────────────────────┐
+│ Quick Book Settings                         × │
+├────────────────────────────────────────────────┤
+│ Configure default folder for Quick Book       │
+│                                                │
+│ Default Folder                                 │
+│ ┌─────────────────────┬──────────┬──────────┐ │
+│ │ C:\path\to\folder   │ 📁Browse │ 🗑️Clear │ │
+│ └─────────────────────┴──────────┴──────────┘ │
+│ Select a default folder to automatically      │
+│ load when clicking Quick Book in docker bar   │
+│                                                │
+├────────────────────────────────────────────────┤
+│                    [Cancel] [💾 Save Settings] │
+└────────────────────────────────────────────────┘
+```
+
+**Components**:
+- **Overlay**: `.dialog-overlay` - Dark backdrop with `rgba(0, 0, 0, 0.7)`
+- **Dialog**: `.dialog` - Background `#2d2d30`, border-radius `8px`, max-width `500px`
+- **Header**: Title + Close button (`×`)
+- **Body**: Description + Folder input group
+- **Footer**: Cancel + Save buttons
+- **Save Message Banner**: Shows `✅ Settings saved!` on success
+
+**Storage**: Uses `localStorage` with key `quickbook-default-folder`
+
+### 3. Default Folder Behavior
+
+**On Mount** (`loadSavedDefaultFolder`):
+1. Reads `localStorage.getItem('quickbook-default-folder')`
+2. If folder exists, calls `invoke('is_directory', { path: savedFolder })`
+3. If valid directory, calls `loadFiles([savedFolder])`
+4. This triggers sidebar tree view population
+
+**Flow**:
+```
+Docker Bar Click → QuickBookView mounts
+                 → loadSavedDefaultFolder()
+                 → localStorage.getItem()
+                 → is_directory check
+                 → loadFiles([folder])
+                 → emit('file-list-changed', fileTree, flatFiles, rootPath)
+                 → SideBar receives tree data
+                 → TreeView renders
+```
+
+### 4. Sidebar Implementation
+
+**Location**: `SideBar.vue` → Tree View Mode section
+
+**Activation Condition**:
+```typescript
+v-else-if="useTreeView && fileTree"
+```
+
+**Computed**: `useTreeView` returns `true` when `activeTool === 'quick-book'`
+
+**Structure**:
+```
+┌─────────────────────────────────────────┐
+│ Tree Header                             │
+│ ┌─────────────────────────────────────┐ │
+│ │ Files              [🔄] [➕]        │ │
+│ └─────────────────────────────────────┘ │
+├─────────────────────────────────────────┤
+│ Tree View (scrollable)                  │
+│ ┌─────────────────────────────────────┐ │
+│ │ 📁 folder-name                      │ │
+│ │   📄 file1.md                       │ │
+│ │   📄 file2.txt                      │ │
+│ │ 📁 another-folder                   │ │
+│ │   📄 file3.hl7                      │ │
+│ └─────────────────────────────────────┘ │
+└─────────────────────────────────────────┘
+```
+
+#### Tree Header (`.tree-header`)
+
+**Visibility**: Only for `quick-book` and `web-analyzer` tools
+
+**Layout**:
+```css
+.tree-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid #3a3a3a;
+  background: #2d2d30;
+}
+```
+
+**Components**:
+- **Title** (`.tree-header-title`): "Files" - font-size: 12px, color: #888
+- **Actions** (`.tree-header-actions`): Flexbox with gap: 4px
+  - **Refresh Button** (`🔄`): Calls `refreshTreeView()`
+  - **Add Button** (`➕`): Calls `showNewFileDialog()`
+
+**Button Styles** (`.tree-action-btn`):
+```css
+.tree-action-btn {
+  background: transparent;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+.tree-action-btn:hover {
+  background: #3a3a3a;
+  color: #fff;
+}
+```
+
+#### Tree View Area (`.tree-view`)
+
+**Component**: Uses `FileTreeNode` recursive component
+
+**Props passed to FileTreeNode**:
+- `node`: FileNode object with `name`, `path`, `is_dir`, `children`
+- `active-path`: Currently selected file path (for highlighting)
+- `@file-selected`: Emits path when file is clicked
+
+**Placeholder**: Shows "No files found in tree" when empty
+
+### 5. FileTreeNode Component
+
+**Location**: `components/FileTreeNode.vue`
+
+**Features**:
+- Recursive rendering for nested folders
+- Folder expand/collapse with `▼` / `▶` icons
+- File icons: `📁` for folders, `📄` for files
+- Active state highlighting (background: #094771)
+- Hover effect (background: #2a2d2e)
+
+**Events**:
+- `@file-selected`: Bubbles up file path when clicked
+- Opens file in main editor area
+
+### 6. File Types Supported
+
+Quick Book filters for text-based files:
+```typescript
+const textExtensions = ['txt', 'md', 'hl7'];
+```
+
+### 7. Communication Flow
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     QuickBookView.vue                        │
+│  ┌─────────────┐                    ┌─────────────────────┐ │
+│  │ Top Header  │                    │ Editor Area         │ │
+│  │ [Settings]  │                    │ (textarea/preview)  │ │
+│  └──────┬──────┘                    └──────────▲──────────┘ │
+│         │                                      │             │
+│         │ emit('file-list-changed')           │ loadTextFile│
+│         ▼                                      │             │
+├─────────────────────────────────────────────────────────────┤
+│                       SideBar.vue                            │
+│  ┌─────────────────────────────────────────────────────────┐│
+│  │ Tree Header: [Files] [🔄] [➕]                          ││
+│  ├─────────────────────────────────────────────────────────┤│
+│  │ FileTreeNode (recursive)                                ││
+│  │   - Click folder → expand/collapse                      ││
+│  │   - Click file → emit('file-selected', path)            ││
+│  └─────────────────────────────────────────────────────────┘│
+│                            │                                 │
+│                            │ @file-selected                  │
+│                            ▼                                 │
+│                  QuickBookView.loadTextFile(path)            │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 8. CSS Class Reference
+
+| Class | Component | Purpose |
+|-------|-----------|---------|
+| `.quick-book-view` | Main container | Flex column, full height |
+| `.top-header` | Header bar | Contains icon, title, settings |
+| `.top-header-left` | Left section | Icon + title grouping |
+| `.settings-btn` | Settings button | Opens modal |
+| `.dialog-overlay` | Modal backdrop | Dark overlay |
+| `.dialog` | Modal container | Settings form |
+| `.tree-view-container` | Sidebar section | Contains tree header + view |
+| `.tree-header` | Tree toolbar | Title + action buttons |
+| `.tree-action-btn` | Toolbar buttons | Refresh, Add |
+| `.tree-view` | Scrollable area | FileTreeNode list |
+| `.editor-container` | Main editor | When file is loaded |
+| `.no-file-container` | Empty state | When no file selected |
+
+---
+
 **Last Updated**: January 2026  
-**Version**: 1.0  
+**Version**: 1.1  
 **Framework**: Tauri 2.x + Vue 3 + TypeScript

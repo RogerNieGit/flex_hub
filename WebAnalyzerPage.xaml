@@ -27,6 +27,7 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
                 <!-- Back Button -->
@@ -150,6 +151,43 @@
                         </Style>
                     </Button.Style>
                 </Button>
+
+                <!-- Settings Gear Button -->
+                <Button Grid.Column="5" 
+                       Width="40" 
+                       Height="35"
+                       Margin="15,0,0,0"
+                       Background="#4A9EFF"
+                       Foreground="White"
+                       BorderThickness="0"
+                       FontSize="16"
+                       Cursor="Hand"
+                       Click="Settings_Click"
+                       ToolTip="Web Analyzer Settings">
+                    <TextBlock Text="⚙" FontSize="18" FontFamily="Segoe UI Symbol"/>
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Background" Value="#4A9EFF"/>
+                            <Setter Property="Foreground" Value="White"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}" 
+                                                CornerRadius="4"
+                                                Padding="8,4">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#007ACC"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
             </Grid>
         </Border>
 
@@ -242,6 +280,7 @@
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
                             <TextBlock Grid.Column="0"
@@ -323,7 +362,18 @@
                                       Foreground="#888888"
                                       FontSize="11"/>
 
-                            <Button Grid.Column="5"
+                            <!-- Word Wrap Checkbox -->
+                            <CheckBox x:Name="WordWrapCheckBox"
+                                     Grid.Column="5"
+                                     Content="Word Wrap"
+                                     Margin="15,0,0,0"
+                                     Foreground="#CCCCCC"
+                                     VerticalAlignment="Center"
+                                     IsChecked="True"
+                                     Checked="WordWrap_Changed"
+                                     Unchecked="WordWrap_Changed"/>
+
+                            <Button Grid.Column="6"
                                    Content="💾 Save to File"
                                    Width="110"
                                    Height="30"

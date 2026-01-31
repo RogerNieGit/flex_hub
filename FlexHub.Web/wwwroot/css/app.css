@@ -1,0 +1,624 @@
+/* FlexHub Web - Dark Theme CSS */
+/* Matching the WPF Desktop App style */
+
+/* ===== CSS Variables (Design Tokens) ===== */
+:root {
+    --bg-primary: #1E1E1E;
+    --bg-secondary: #2B2B2B;
+    --bg-tertiary: #3C3C3C;
+    --bg-hover: #3E3E42;
+    --border-color: #2B2B2B;
+    --text-primary: #CCCCCC;
+    --text-secondary: #999999;
+    --text-muted: #666666;
+    --accent-blue: #4A9EFF;
+    --accent-blue-hover: #0078D4;
+    --danger-red: #E81123;
+    --success-green: #107C10;
+    --docker-bar-width: 48px;
+    --sidebar-width: 390px;
+    --menu-bar-height: 35px;
+}
+
+/* ===== Reset & Base ===== */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 14px;
+    color: var(--text-primary);
+    background-color: var(--bg-primary);
+}
+
+a {
+    color: var(--accent-blue);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--accent-blue-hover);
+}
+
+/* ===== App Container ===== */
+.app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* ===== Menu Bar ===== */
+.menu-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--menu-bar-height);
+    background-color: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0 10px;
+}
+
+.menu-items {
+    display: flex;
+    gap: 0;
+}
+
+.menu-dropdown {
+    position: relative;
+}
+
+.menu-label {
+    display: inline-block;
+    padding: 8px 12px;
+    cursor: pointer;
+    color: var(--text-primary);
+}
+
+.menu-label:hover {
+    background-color: var(--bg-hover);
+}
+
+.menu-content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 150px;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    z-index: 1000;
+}
+
+.menu-dropdown:hover .menu-content {
+    display: block;
+}
+
+.menu-content a {
+    display: block;
+    padding: 8px 15px;
+    color: var(--text-primary);
+}
+
+.menu-content a:hover {
+    background-color: var(--bg-hover);
+}
+
+.menu-content hr {
+    border: none;
+    border-top: 1px solid var(--bg-tertiary);
+    margin: 5px 0;
+}
+
+.header-title {
+    color: var(--text-secondary);
+    font-size: 12px;
+}
+
+/* ===== App Body ===== */
+.app-body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* ===== Docker Bar (Icon Sidebar) ===== */
+.docker-bar {
+    width: var(--docker-bar-width);
+    background-color: var(--bg-secondary);
+    border-right: 1px solid var(--bg-primary);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 10px;
+}
+
+.docker-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent-blue);
+    font-size: 24px;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.docker-icon:hover {
+    background-color: var(--bg-tertiary);
+}
+
+.docker-icon.active {
+    border-left-color: var(--accent-blue);
+    background-color: var(--bg-tertiary);
+}
+
+/* ===== Main Content ===== */
+.main-content {
+    flex: 1;
+    overflow: auto;
+    padding: 20px;
+    background-color: var(--bg-primary);
+}
+
+/* ===== Sidebar Panel ===== */
+.sidebar-panel {
+    width: var(--sidebar-width);
+    background-color: var(--bg-secondary);
+    border-left: 1px solid var(--bg-primary);
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px;
+    background-color: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-icon {
+    font-size: 20px;
+}
+
+.sidebar-title {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.sidebar-content {
+    padding: 15px;
+    flex: 1;
+    overflow: auto;
+}
+
+.sidebar-text {
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+/* ===== Home Page ===== */
+.home-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.welcome-card {
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 30px;
+    margin-bottom: 20px;
+}
+
+.welcome-card h1 {
+    color: var(--text-primary);
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    color: var(--text-secondary);
+    font-size: 16px;
+    margin-bottom: 30px;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.feature-card {
+    background-color: var(--bg-tertiary);
+    border-radius: 8px;
+    padding: 20px;
+    transition: transform 0.2s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-2px);
+}
+
+.feature-icon {
+    font-size: 32px;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.feature-card h3 {
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.feature-card p {
+    color: var(--text-secondary);
+    font-size: 13px;
+    margin-bottom: 15px;
+}
+
+.feature-link {
+    color: var(--accent-blue);
+    font-weight: 500;
+}
+
+.info-section {
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 25px;
+}
+
+.info-section h2 {
+    color: var(--text-primary);
+    margin-bottom: 20px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 15px;
+    background-color: var(--bg-tertiary);
+    border-radius: 8px;
+}
+
+.stat-value {
+    display: block;
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--accent-blue);
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+/* ===== Analyzer Page ===== */
+.analyzer-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.analyzer-header {
+    margin-bottom: 20px;
+}
+
+.analyzer-header h2 {
+    color: var(--text-primary);
+    margin-bottom: 5px;
+}
+
+.analyzer-header p {
+    color: var(--text-secondary);
+}
+
+.analyzer-toolbar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.url-input {
+    flex: 1;
+    padding: 10px 15px;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--bg-tertiary);
+    border-radius: 4px;
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.url-input:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+}
+
+.analyze-button {
+    padding: 10px 20px;
+    background-color: var(--accent-blue);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.analyze-button:hover {
+    background-color: var(--accent-blue-hover);
+}
+
+.analyzer-content {
+    flex: 1;
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 20px;
+    overflow: auto;
+}
+
+.result-panel h3 {
+    color: var(--text-primary);
+    margin-bottom: 15px;
+}
+
+.result-panel pre {
+    background-color: var(--bg-tertiary);
+    padding: 15px;
+    border-radius: 4px;
+    color: var(--text-primary);
+    white-space: pre-wrap;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    color: var(--text-muted);
+}
+
+.empty-icon {
+    font-size: 48px;
+    margin-bottom: 15px;
+}
+
+/* ===== Database Page ===== */
+.database-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.database-header {
+    margin-bottom: 20px;
+}
+
+.database-header h2 {
+    color: var(--text-primary);
+    margin-bottom: 5px;
+}
+
+.database-header p {
+    color: var(--text-secondary);
+}
+
+.database-toolbar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.toolbar-button {
+    padding: 8px 16px;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--bg-tertiary);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.toolbar-button:hover {
+    background-color: var(--bg-tertiary);
+}
+
+.database-content {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 15px;
+}
+
+.tables-panel {
+    grid-row: 1 / 3;
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 15px;
+}
+
+.query-panel {
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.query-editor {
+    flex: 1;
+    background-color: var(--bg-tertiary);
+    border: none;
+    border-radius: 4px;
+    padding: 10px;
+    color: var(--text-primary);
+    font-family: 'Consolas', monospace;
+    resize: none;
+    margin-bottom: 10px;
+}
+
+.execute-button {
+    align-self: flex-start;
+    padding: 8px 16px;
+    background-color: var(--success-green);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.results-panel {
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 15px;
+}
+
+.results-panel h3,
+.tables-panel h3,
+.query-panel h3 {
+    color: var(--text-primary);
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+.empty-state-small {
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+/* ===== Settings Page ===== */
+.settings-container {
+    max-width: 800px;
+}
+
+.settings-header {
+    margin-bottom: 30px;
+}
+
+.settings-header h2 {
+    color: var(--text-primary);
+    margin-bottom: 5px;
+}
+
+.settings-header p {
+    color: var(--text-secondary);
+}
+
+.settings-content {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.settings-section {
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.settings-section h3 {
+    color: var(--text-primary);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--bg-tertiary);
+}
+
+.setting-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.setting-item label {
+    color: var(--text-primary);
+}
+
+.setting-input,
+.setting-select {
+    width: 250px;
+    padding: 8px 12px;
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--bg-primary);
+    border-radius: 4px;
+    color: var(--text-primary);
+}
+
+.setting-input:focus,
+.setting-select:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+}
+
+.settings-actions {
+    display: flex;
+    gap: 15px;
+    padding-top: 10px;
+}
+
+.save-button {
+    padding: 10px 20px;
+    background-color: var(--accent-blue);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.save-button:hover {
+    background-color: var(--accent-blue-hover);
+}
+
+.reset-button {
+    padding: 10px 20px;
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--bg-primary);
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.reset-button:hover {
+    background-color: var(--bg-hover);
+}
+
+/* ===== Scrollbar Styling ===== */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--bg-tertiary);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
