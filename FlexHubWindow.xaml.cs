@@ -15,6 +15,32 @@ public partial class FlexHubWindow : Window
     {
         InitializeComponent();
         LoadHomePage();
+        
+        // Update maximize button icon based on initial window state
+        Loaded += (s, e) =>
+        {
+            if (WindowState == WindowState.Maximized)
+            {
+                MaximizeButton.Content = "🗗";
+            }
+            else
+            {
+                MaximizeButton.Content = "🗖";
+            }
+        };
+        
+        // Also update icon when window state changes
+        StateChanged += (s, e) =>
+        {
+            if (WindowState == WindowState.Maximized)
+            {
+                MaximizeButton.Content = "🗗";
+            }
+            else
+            {
+                MaximizeButton.Content = "🗖";
+            }
+        };
     }
 
     #region Window Controls
@@ -754,6 +780,15 @@ public partial class FlexHubWindow : Window
             BorderThickness = new Thickness(0),
             Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#CCCCCC"))
         };
+        
+        // Override system colors for TreeView selection
+        var blueColor = (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#4A9EFF");
+        var blueBrush = new System.Windows.Media.SolidColorBrush(blueColor);
+        blueBrush.Freeze();
+        treeView.Resources.Add(System.Windows.SystemColors.HighlightBrushKey, blueBrush);
+        treeView.Resources.Add(System.Windows.SystemColors.HighlightTextBrushKey, System.Windows.Media.Brushes.White);
+        treeView.Resources.Add(System.Windows.SystemColors.InactiveSelectionHighlightBrushKey, blueBrush);
+        treeView.Resources.Add(System.Windows.SystemColors.InactiveSelectionHighlightTextBrushKey, System.Windows.Media.Brushes.White);
 
         try
         {
@@ -899,8 +934,22 @@ public partial class FlexHubWindow : Window
                     {
                         Header = $"📂 {pathParts[i]}",
                         IsExpanded = false,
-                        Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#CCCCCC")),
+                        Foreground = System.Windows.Media.Brushes.White,
+                        Background = System.Windows.Media.Brushes.Transparent,
                         Tag = currentPath // Store path for sorting
+                    };
+                    
+                    // Add selection styling for folders
+                    folderItem.Selected += (s, ev) =>
+                    {
+                        ev.Handled = true;
+                        folderItem.Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#4A9EFF"));
+                        folderItem.Foreground = System.Windows.Media.Brushes.White;
+                    };
+                    folderItem.Unselected += (s, ev) =>
+                    {
+                        folderItem.Background = System.Windows.Media.Brushes.Transparent;
+                        folderItem.Foreground = System.Windows.Media.Brushes.White;
                     };
                     
                     folderMap[currentPath] = folderItem;
@@ -920,16 +969,18 @@ public partial class FlexHubWindow : Window
             {
                 Header = $"📄 {file.Name}",
                 Tag = file.FullName,
-                Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(isSelected ? "#4A9EFF" : "#CCCCCC")),
-                Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(isSelected ? "#2D2D30" : "Transparent"))
+                Foreground = System.Windows.Media.Brushes.White,
+                Background = isSelected 
+                    ? new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#4A9EFF"))
+                    : System.Windows.Media.Brushes.Transparent
             };
 
             fileItem.Selected += (s, e) =>
             {
                 e.Handled = true;
-                // Apply blue styling to selected item
-                fileItem.Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#4A9EFF"));
-                fileItem.Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#2D2D30"));
+                // Apply blue background, keep white text
+                fileItem.Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#4A9EFF"));
+                fileItem.Foreground = System.Windows.Media.Brushes.White;
                 
                 if (fileItem.Tag is string filePath)
                 {
@@ -939,9 +990,9 @@ public partial class FlexHubWindow : Window
 
             fileItem.Unselected += (s, e) =>
             {
-                // Reset styling when unselected
-                fileItem.Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#CCCCCC"));
+                // Reset to transparent background, keep white text
                 fileItem.Background = System.Windows.Media.Brushes.Transparent;
+                fileItem.Foreground = System.Windows.Media.Brushes.White;
             };
 
             // Add file to its directory's file list
@@ -999,6 +1050,9 @@ public partial class FlexHubWindow : Window
         // Auto-select first file if no file was explicitly selected
         if (selectedFile == null && firstFileItem != null)
         {
+            // Apply selected styling explicitly
+            firstFileItem.Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#4A9EFF"));
+            firstFileItem.Foreground = System.Windows.Media.Brushes.White;
             firstFileItem.IsSelected = true;
             if (firstFileItem.Tag is string filePath)
             {

@@ -230,17 +230,17 @@
                                       Margin="0,0,15,0"
                                       VerticalAlignment="Center"/>
                             <StackPanel VerticalAlignment="Center">
-                                <TextBlock x:Name="HeaderTitle"
-                                          Text="Welcome to FlexHub"
-                                          FontSize="18"
-                                          FontWeight="SemiBold"
-                                          Foreground="White"/>
-                                <TextBlock x:Name="HeaderSubtitle" 
-                                          Text="Modern .NET 8 WPF Application" 
-                                          FontSize="12" 
-                                          FontFamily="Consolas"
-                                          Foreground="#888888"
-                                          Margin="0,2,0,0"/>
+                                <TextBox x:Name="HeaderTitle"
+                                         Text="Welcome to FlexHub"
+                                         Style="{StaticResource SelectableTitle}"
+                                         FontSize="18"
+                                         FontWeight="SemiBold"/>
+                                <TextBox x:Name="HeaderSubtitle" 
+                                         Text="Modern .NET 8 WPF Application" 
+                                         Style="{StaticResource SelectableSubtitle}"
+                                         FontSize="12" 
+                                         FontFamily="Consolas"
+                                         Margin="0,2,0,0"/>
                             </StackPanel>
                         </StackPanel>
                         
