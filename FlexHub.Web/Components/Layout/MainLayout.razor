@@ -1,0 +1,74 @@
+@inherits LayoutComponentBase
+
+<div class="app-container">
+    <!-- Menu Bar -->
+    <header class="menu-bar">
+        <nav class="menu-items">
+            <div class="menu-dropdown">
+                <span class="menu-label">File</span>
+                <div class="menu-content">
+                    <a href="#">Open File</a>
+                    <a href="#">Open Folder</a>
+                    <hr />
+                    <a href="#">Exit</a>
+                </div>
+            </div>
+            <div class="menu-dropdown">
+                <span class="menu-label">Edit</span>
+                <div class="menu-content">
+                    <a href="#">Settings</a>
+                </div>
+            </div>
+            <div class="menu-dropdown">
+                <span class="menu-label">View</span>
+                <div class="menu-content">
+                    <a href="#">Zoom In</a>
+                    <a href="#">Zoom Out</a>
+                    <a href="#">Reset Zoom</a>
+                </div>
+            </div>
+            <div class="menu-dropdown">
+                <span class="menu-label">Help</span>
+                <div class="menu-content">
+                    <a href="#">About</a>
+                </div>
+            </div>
+        </nav>
+        <div class="header-title">FlexHub Web</div>
+    </header>
+
+    <!-- App Body -->
+    <div class="app-body">
+        <!-- Docker Bar (Sidebar Icons) -->
+        <aside class="docker-bar">
+            <NavLink href="/" class="docker-icon" Match="NavLinkMatch.All" title="Home">
+                <span>🏠</span>
+            </NavLink>
+            <NavLink href="/analyzer" class="docker-icon" title="Web Analyzer">
+                <span>🌐</span>
+            </NavLink>
+            <NavLink href="/database" class="docker-icon" title="Database">
+                <span>🗄️</span>
+            </NavLink>
+            <NavLink href="/settings" class="docker-icon" title="Settings">
+                <span>⚙️</span>
+            </NavLink>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            @Body
+        </main>
+
+        <!-- Sidebar Panel -->
+        <aside class="sidebar-panel">
+            <div class="sidebar-header">
+                <span class="sidebar-icon">📋</span>
+                <span class="sidebar-title">Details</span>
+            </div>
+            <div class="sidebar-content">
+                <p class="sidebar-text">Select an item to view details</p>
+            </div>
+        </aside>
+    </div>
+</div>

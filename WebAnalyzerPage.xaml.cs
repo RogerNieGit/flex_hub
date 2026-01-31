@@ -19,13 +19,275 @@ public partial class WebAnalyzerPage : Page
 {
     private readonly AiAnalysisService _aiService;
     private string _lastAiResponse = "";
+    
+    // Settings key for default folder
+    private const string DefaultFolderSettingKey = "WebAnalyzer_DefaultFolder";
+    
+    // Event to notify parent window to update sidebar with tree
+    public event Action<string>? OnDefaultFolderLoaded;
 
     public WebAnalyzerPage()
     {
         InitializeComponent();
         _aiService = new AiAnalysisService();
         InitializeWebView();
+        
+        // Load default folder on startup
+        Loaded += WebAnalyzerPage_Loaded;
     }
+
+    private void WebAnalyzerPage_Loaded(object sender, RoutedEventArgs e)
+    {
+        LoadDefaultFolderIfValid();
+    }
+
+    private void LoadDefaultFolderIfValid()
+    {
+        var defaultFolder = GetDefaultFolder();
+        if (!string.IsNullOrEmpty(defaultFolder) && Directory.Exists(defaultFolder))
+        {
+            // Notify parent window to build tree view
+            OnDefaultFolderLoaded?.Invoke(defaultFolder);
+        }
+    }
+    
+    #region Settings Management
+    
+    public static string? GetDefaultFolder()
+    {
+        try
+        {
+            return Microsoft.Win32.Registry.CurrentUser
+                .OpenSubKey("SOFTWARE\\FlexHub")?
+                .GetValue(DefaultFolderSettingKey) as string;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+    
+    public static void SaveDefaultFolder(string folderPath)
+    {
+        try
+        {
+            var key = Microsoft.Win32.Registry.CurrentUser.CreateSubKey("SOFTWARE\\FlexHub");
+            key?.SetValue(DefaultFolderSettingKey, folderPath);
+        }
+        catch (Exception ex)
+        {
+            System.Windows.MessageBox.Show(
+                $"Error saving settings: {ex.Message}",
+                "Settings Error",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
+    }
+    
+    public static void ClearDefaultFolder()
+    {
+        try
+        {
+            var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("SOFTWARE\\FlexHub", true);
+            key?.DeleteValue(DefaultFolderSettingKey, false);
+        }
+        catch
+        {
+            // Ignore if value doesn't exist
+        }
+    }
+    
+    private void Settings_Click(object sender, RoutedEventArgs e)
+    {
+        ShowSettingsDialog();
+    }
+    
+    private void ShowSettingsDialog()
+    {
+        var dialog = new Window
+        {
+            Title = "Web Analyzer Settings",
+            Width = 500,
+            Height = 280,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            Owner = Window.GetWindow(this),
+            Background = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#2D2D30")),
+            ResizeMode = ResizeMode.NoResize,
+            WindowStyle = WindowStyle.ToolWindow
+        };
+        
+        var mainGrid = new System.Windows.Controls.Grid { Margin = new Thickness(20) };
+        mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        mainGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        
+        // Title
+        var titleText = new System.Windows.Controls.TextBlock
+        {
+            Text = "Configure default folder for Web Analyzer",
+            FontSize = 14,
+            Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#CCCCCC")),
+            Margin = new Thickness(0, 0, 0, 20)
+        };
+        System.Windows.Controls.Grid.SetRow(titleText, 0);
+        mainGrid.Children.Add(titleText);
+        
+        // Label
+        var labelText = new System.Windows.Controls.TextBlock
+        {
+            Text = "Default Folder",
+            FontSize = 12,
+            FontWeight = FontWeights.SemiBold,
+            Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#4A9EFF")),
+            Margin = new Thickness(0, 0, 0, 8)
+        };
+        System.Windows.Controls.Grid.SetRow(labelText, 1);
+        mainGrid.Children.Add(labelText);
+        
+        // Folder input row
+        var inputGrid = new System.Windows.Controls.Grid();
+        inputGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        inputGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        inputGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        System.Windows.Controls.Grid.SetRow(inputGrid, 2);
+        
+        var folderTextBox = new System.Windows.Controls.TextBox
+        {
+            Text = GetDefaultFolder() ?? "",
+            Background = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#1E1E1E")),
+            Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#CCCCCC")),
+            BorderBrush = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#3C3C3C")),
+            Padding = new Thickness(10, 8, 10, 8),
+            FontSize = 12,
+            VerticalContentAlignment = VerticalAlignment.Center
+        };
+        System.Windows.Controls.Grid.SetColumn(folderTextBox, 0);
+        inputGrid.Children.Add(folderTextBox);
+        
+        var browseBtn = new System.Windows.Controls.Button
+        {
+            Content = "📁 Browse",
+            Background = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#3A3A3A")),
+            Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#CCCCCC")),
+            BorderThickness = new Thickness(0),
+            Padding = new Thickness(12, 8, 12, 8),
+            Margin = new Thickness(8, 0, 0, 0),
+            Cursor = System.Windows.Input.Cursors.Hand
+        };
+        browseBtn.Click += (s, ev) =>
+        {
+            var folderDialog = new System.Windows.Forms.FolderBrowserDialog
+            {
+                Description = "Select default folder for HTML files",
+                ShowNewFolderButton = false
+            };
+            if (folderDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                folderTextBox.Text = folderDialog.SelectedPath;
+            }
+        };
+        System.Windows.Controls.Grid.SetColumn(browseBtn, 1);
+        inputGrid.Children.Add(browseBtn);
+        
+        var clearBtn = new System.Windows.Controls.Button
+        {
+            Content = "🗑️ Clear",
+            Background = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#3A3A3A")),
+            Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#CCCCCC")),
+            BorderThickness = new Thickness(0),
+            Padding = new Thickness(12, 8, 12, 8),
+            Margin = new Thickness(8, 0, 0, 0),
+            Cursor = System.Windows.Input.Cursors.Hand
+        };
+        clearBtn.Click += (s, ev) =>
+        {
+            folderTextBox.Text = "";
+        };
+        System.Windows.Controls.Grid.SetColumn(clearBtn, 2);
+        inputGrid.Children.Add(clearBtn);
+        
+        mainGrid.Children.Add(inputGrid);
+        
+        // Description
+        var descText = new System.Windows.Controls.TextBlock
+        {
+            Text = "Select a default folder to automatically load when clicking Web Analyzer in docker bar",
+            FontSize = 11,
+            Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#888888")),
+            Margin = new Thickness(0, 12, 0, 0),
+            TextWrapping = TextWrapping.Wrap
+        };
+        System.Windows.Controls.Grid.SetRow(descText, 3);
+        mainGrid.Children.Add(descText);
+        
+        // Buttons row
+        var buttonPanel = new System.Windows.Controls.StackPanel
+        {
+            Orientation = System.Windows.Controls.Orientation.Horizontal,
+            HorizontalAlignment = System.Windows.HorizontalAlignment.Right,
+            Margin = new Thickness(0, 20, 0, 0)
+        };
+        System.Windows.Controls.Grid.SetRow(buttonPanel, 4);
+        
+        var cancelBtn = new System.Windows.Controls.Button
+        {
+            Content = "Cancel",
+            Width = 80,
+            Background = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#3A3A3A")),
+            Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#CCCCCC")),
+            BorderThickness = new Thickness(0),
+            Padding = new Thickness(12, 8, 12, 8),
+            Margin = new Thickness(0, 0, 10, 0),
+            Cursor = System.Windows.Input.Cursors.Hand
+        };
+        cancelBtn.Click += (s, ev) => dialog.Close();
+        buttonPanel.Children.Add(cancelBtn);
+        
+        var saveBtn = new System.Windows.Controls.Button
+        {
+            Content = "💾 Save Settings",
+            Background = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#4A9EFF")),
+            Foreground = new SolidColorBrush(Colors.White),
+            BorderThickness = new Thickness(0),
+            Padding = new Thickness(12, 8, 12, 8),
+            Cursor = System.Windows.Input.Cursors.Hand
+        };
+        saveBtn.Click += (s, ev) =>
+        {
+            var folderPath = folderTextBox.Text.Trim();
+            if (string.IsNullOrEmpty(folderPath))
+            {
+                ClearDefaultFolder();
+                System.Windows.MessageBox.Show("Default folder cleared.", "Settings Saved", 
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            else if (Directory.Exists(folderPath))
+            {
+                SaveDefaultFolder(folderPath);
+                System.Windows.MessageBox.Show("✅ Settings saved!", "Settings Saved", 
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+                // Notify parent to load tree
+                OnDefaultFolderLoaded?.Invoke(folderPath);
+            }
+            else
+            {
+                System.Windows.MessageBox.Show("The specified folder does not exist.", "Invalid Folder", 
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            dialog.Close();
+        };
+        buttonPanel.Children.Add(saveBtn);
+        
+        mainGrid.Children.Add(buttonPanel);
+        
+        dialog.Content = mainGrid;
+        dialog.ShowDialog();
+    }
+    
+    #endregion
 
     private async void InitializeWebView()
     {

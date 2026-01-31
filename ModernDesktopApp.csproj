@@ -9,6 +9,14 @@
     <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
 
+  <!-- Exclude FlexHub.Web project folder from this project -->
+  <ItemGroup>
+    <Compile Remove="FlexHub.Web\**" />
+    <Content Remove="FlexHub.Web\**" />
+    <EmbeddedResource Remove="FlexHub.Web\**" />
+    <None Remove="FlexHub.Web\**" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.2" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3719.77" />

@@ -1,0 +1,47 @@
+@page "/analyzer"
+
+<PageTitle>Web Analyzer - FlexHub</PageTitle>
+
+<div class="analyzer-container">
+    <div class="analyzer-header">
+        <h2>🌐 Web Analyzer</h2>
+        <p>Analyze HTML files and web content</p>
+    </div>
+    
+    <div class="analyzer-toolbar">
+        <input type="text" @bind="url" placeholder="Enter URL or file path..." class="url-input" />
+        <button class="analyze-button" @onclick="AnalyzeUrl">
+            <span>🔍</span> Analyze
+        </button>
+    </div>
+    
+    <div class="analyzer-content">
+        @if (!string.IsNullOrEmpty(analysisResult))
+        {
+            <div class="result-panel">
+                <h3>Analysis Result</h3>
+                <pre>@analysisResult</pre>
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <span class="empty-icon">📄</span>
+                <p>Enter a URL or open a file to start analyzing</p>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private string url = "";
+    private string analysisResult = "";
+
+    private void AnalyzeUrl()
+    {
+        if (!string.IsNullOrWhiteSpace(url))
+        {
+            analysisResult = $"Analyzing: {url}\n\nAnalysis features coming soon...";
+        }
+    }
+}
