@@ -665,7 +665,8 @@ public partial class FlexHubWindow : Window
         {
             Text = "Files",
             FontSize = 12,
-            Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#888888")),
+            FontWeight = FontWeights.Bold,
+            Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#4A9EFF")),
             VerticalAlignment = VerticalAlignment.Center,
             Margin = new Thickness(4, 0, 0, 0)
         };
@@ -677,11 +678,12 @@ public partial class FlexHubWindow : Window
         {
             Content = "🔄",
             Background = System.Windows.Media.Brushes.Transparent,
-            Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#888888")),
+            Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#4A9EFF")),
             BorderThickness = new Thickness(0),
             Padding = new Thickness(6, 4, 6, 4),
             Cursor = System.Windows.Input.Cursors.Hand,
             FontSize = 14,
+            FontWeight = FontWeights.Bold,
             ToolTip = "Refresh file tree"
         };
         refreshBtn.Click += (s, e) =>
@@ -694,29 +696,35 @@ public partial class FlexHubWindow : Window
         System.Windows.Controls.Grid.SetColumn(refreshBtn, 1);
         headerGrid.Children.Add(refreshBtn);
         
-        // Add/Open folder button
+        // Add/Create new file button
         var addBtn = new System.Windows.Controls.Button
         {
             Content = "➕",
             Background = System.Windows.Media.Brushes.Transparent,
-            Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#888888")),
+            Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#4A9EFF")),
             BorderThickness = new Thickness(0),
             Padding = new Thickness(6, 4, 6, 4),
             Cursor = System.Windows.Input.Cursors.Hand,
             FontSize = 14,
-            ToolTip = "Open a different folder"
+            FontWeight = FontWeights.Bold,
+            ToolTip = "Create new file"
         };
         addBtn.Click += (s, e) =>
         {
-            var dialog = new System.Windows.Forms.FolderBrowserDialog
+            // Get the folder where the selected file is located, or use root folder
+            string targetFolder = _currentTreeFolderPath ?? "";
+            if (!string.IsNullOrEmpty(_selectedFilePath) && System.IO.File.Exists(_selectedFilePath))
             {
-                Description = "Select folder with HTML files",
-                ShowNewFolderButton = false
-            };
-            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                BuildFileTreeViewWithHeader(dialog.SelectedPath, new[] { ".html", ".htm" }, null);
+                targetFolder = System.IO.Path.GetDirectoryName(_selectedFilePath) ?? _currentTreeFolderPath ?? "";
             }
+            
+            if (string.IsNullOrEmpty(targetFolder) || !System.IO.Directory.Exists(targetFolder))
+            {
+                System.Windows.MessageBox.Show("No folder selected. Please open a folder first.", "Create File", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            
+            ShowCreateFileDialog(targetFolder);
         };
         System.Windows.Controls.Grid.SetColumn(addBtn, 2);
         headerGrid.Children.Add(addBtn);
@@ -919,10 +927,21 @@ public partial class FlexHubWindow : Window
             fileItem.Selected += (s, e) =>
             {
                 e.Handled = true;
+                // Apply blue styling to selected item
+                fileItem.Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#4A9EFF"));
+                fileItem.Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#2D2D30"));
+                
                 if (fileItem.Tag is string filePath)
                 {
                     LoadHtmlFileInWebAnalyzer(filePath);
                 }
+            };
+
+            fileItem.Unselected += (s, e) =>
+            {
+                // Reset styling when unselected
+                fileItem.Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#CCCCCC"));
+                fileItem.Background = System.Windows.Media.Brushes.Transparent;
             };
 
             // Add file to its directory's file list
@@ -939,6 +958,9 @@ public partial class FlexHubWindow : Window
             }
         }
 
+        // Track first file item for auto-selection
+        System.Windows.Controls.TreeViewItem? firstFileItem = null;
+
         // Build tree: add files first, then subfolders to each folder
         void AddItemsToFolder(string folderPath, System.Windows.Controls.ItemCollection items)
         {
@@ -948,6 +970,11 @@ public partial class FlexHubWindow : Window
                 foreach (var fileItem in folderFilesMap[folderPath].OrderBy(f => ((string)f.Header).Substring(2))) // Remove emoji for sorting
                 {
                     items.Add(fileItem);
+                    // Track first file for auto-selection
+                    if (firstFileItem == null)
+                    {
+                        firstFileItem = fileItem;
+                    }
                 }
             }
 
@@ -968,6 +995,16 @@ public partial class FlexHubWindow : Window
 
         // Start with root folder
         AddItemsToFolder(rootPath, treeView.Items);
+
+        // Auto-select first file if no file was explicitly selected
+        if (selectedFile == null && firstFileItem != null)
+        {
+            firstFileItem.IsSelected = true;
+            if (firstFileItem.Tag is string filePath)
+            {
+                LoadHtmlFileInWebAnalyzer(filePath);
+            }
+        }
     }
 
     private void ExpandParentFolders(string fileDir, string rootPath, System.Collections.Generic.Dictionary<string, System.Windows.Controls.TreeViewItem> folderMap)
@@ -991,6 +1028,142 @@ public partial class FlexHubWindow : Window
     // Store currently selected file info for future use
     private string? _selectedFilePath = null;
     private string? _selectedFileName = null;
+
+    private void ShowCreateFileDialog(string targetFolder)
+    {
+        // Create a simple dialog for file creation
+        var dialog = new Window
+        {
+            Title = "Create New File",
+            Width = 400,
+            Height = 200,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            Owner = this,
+            Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#2D2D30")),
+            ResizeMode = ResizeMode.NoResize
+        };
+
+        var mainPanel = new StackPanel { Margin = new Thickness(20) };
+
+        // File name input
+        var nameLabel = new System.Windows.Controls.TextBlock
+        {
+            Text = "File name (without extension):",
+            Foreground = System.Windows.Media.Brushes.White,
+            Margin = new Thickness(0, 0, 0, 5)
+        };
+        mainPanel.Children.Add(nameLabel);
+
+        var nameBox = new System.Windows.Controls.TextBox
+        {
+            Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#3C3C3C")),
+            Foreground = System.Windows.Media.Brushes.White,
+            BorderBrush = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#555555")),
+            Padding = new Thickness(8, 5, 8, 5),
+            Margin = new Thickness(0, 0, 0, 15)
+        };
+        mainPanel.Children.Add(nameBox);
+
+        // File type selection
+        var typeLabel = new System.Windows.Controls.TextBlock
+        {
+            Text = "File type:",
+            Foreground = System.Windows.Media.Brushes.White,
+            Margin = new Thickness(0, 0, 0, 5)
+        };
+        mainPanel.Children.Add(typeLabel);
+
+        var typeCombo = new System.Windows.Controls.ComboBox
+        {
+            Margin = new Thickness(0, 0, 0, 20),
+            Padding = new Thickness(8, 5, 8, 5)
+        };
+        // Style the ComboBox with dark theme
+        typeCombo.Resources.Add(System.Windows.SystemColors.WindowBrushKey, 
+            new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#3C3C3C")));
+        typeCombo.Resources.Add(System.Windows.SystemColors.HighlightBrushKey,
+            new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#4A9EFF")));
+        typeCombo.Items.Add(".html");
+        typeCombo.Items.Add(".md");
+        typeCombo.Items.Add(".txt");
+        typeCombo.SelectedIndex = 0;
+        mainPanel.Children.Add(typeCombo);
+
+        // Buttons
+        var buttonPanel = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, HorizontalAlignment = System.Windows.HorizontalAlignment.Right };
+        
+        var createBtn = new System.Windows.Controls.Button
+        {
+            Content = "Create",
+            Width = 80,
+            Padding = new Thickness(10, 5, 10, 5),
+            Margin = new Thickness(0, 0, 10, 0),
+            Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#4A9EFF")),
+            Foreground = System.Windows.Media.Brushes.White,
+            BorderThickness = new Thickness(0)
+        };
+        createBtn.Click += (s, ev) =>
+        {
+            var fileName = nameBox.Text.Trim();
+            if (string.IsNullOrEmpty(fileName))
+            {
+                System.Windows.MessageBox.Show("Please enter a file name.", "Create File", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // Remove any extension user might have added
+            fileName = System.IO.Path.GetFileNameWithoutExtension(fileName);
+            var extension = typeCombo.SelectedItem?.ToString() ?? ".html";
+            var fullPath = System.IO.Path.Combine(targetFolder, fileName + extension);
+
+            if (System.IO.File.Exists(fullPath))
+            {
+                System.Windows.MessageBox.Show($"File '{fileName}{extension}' already exists.", "Create File", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                // Create file with default content based on type
+                string content = extension switch
+                {
+                    ".html" => "<!DOCTYPE html>\n<html>\n<head>\n    <title>" + fileName + "</title>\n</head>\n<body>\n\n</body>\n</html>",
+                    ".md" => "# " + fileName + "\n\n",
+                    ".txt" => "",
+                    _ => ""
+                };
+                System.IO.File.WriteAllText(fullPath, content);
+                dialog.Close();
+
+                // Refresh tree and select the new file
+                if (!string.IsNullOrEmpty(_currentTreeFolderPath))
+                {
+                    BuildFileTreeViewWithHeader(_currentTreeFolderPath, new[] { ".html", ".htm", ".md", ".txt" }, fullPath);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"Error creating file: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        };
+        buttonPanel.Children.Add(createBtn);
+
+        var cancelBtn = new System.Windows.Controls.Button
+        {
+            Content = "Cancel",
+            Width = 80,
+            Padding = new Thickness(10, 5, 10, 5),
+            Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#555555")),
+            Foreground = System.Windows.Media.Brushes.White,
+            BorderThickness = new Thickness(0)
+        };
+        cancelBtn.Click += (s, ev) => dialog.Close();
+        buttonPanel.Children.Add(cancelBtn);
+
+        mainPanel.Children.Add(buttonPanel);
+        dialog.Content = mainPanel;
+        dialog.ShowDialog();
+    }
 
     private void LoadHtmlFileInWebAnalyzer(string filePath)
     {
